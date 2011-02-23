@@ -1,0 +1,10 @@
+.actionScriptProperties
+.classpath
+.flexProperties
+.project
+.settings
+WebContent/*.swf
+WebContent/*.html
+WebContent/history/*
+WebContent/swfobject.js
+WebContent/WEB-INF/classes/*
