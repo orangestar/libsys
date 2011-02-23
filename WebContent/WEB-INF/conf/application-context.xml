@@ -11,8 +11,7 @@
 	<bean id="propertyConfigurer"
 		  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location">
-			<!-- <value>WEB-INF/conf/database.properties</value> -->
-			<value>E:/workspaces/LibrarySystem/WebContent/WEB-INF/conf/database.properties</value>
+			<value>WEB-INF/conf/database.properties</value>
 		</property>
 	</bean>
 	
@@ -38,18 +37,18 @@
     
     <bean id="userDao" parent="dao"
     	  class="pro.libsys.dao.UserDao"/>
-    
     <bean id="bookDao" parent="dao"
     	  class="pro.libsys.dao.BookDao"/>
-
-	<!-- spring-blazeds configuration
+    	  
+    <bean id="systemService"
+    	  class="pro.libsys.service.impl.SystemServiceImpl">
+    	  <property name="userDao" ref="userDao"/>
+	</bean>
+	<!-- spring-blazeds configuration -->
 	<flex:message-broker>
 		<flex:remoting-service default-channels="my-amf"/>
 	</flex:message-broker>
 	
-	<bean id="hwSpring" class="pro.libsys.test.HelloWorldSpring">
-		<property name="jdbcTemplate" ref="jdbcTemplate" />
-	</bean>
-	<flex:remoting-destination ref="hwSpring"/>
- -->
+	<flex:remoting-destination ref="systemService"/>
+
 </beans>

@@ -6,40 +6,59 @@
 
 	<fx:Script>
 		<![CDATA[
+			import mx.collections.ArrayList;
 			import mx.controls.Alert;
 			import mx.rpc.events.ResultEvent;
+			
+			import pro.libsys.beans.User;
+			
+			import spark.events.IndexChangeEvent;
+			
+			[Bindable]
+			private var userList : ArrayList = new ArrayList([""]);
+			
 			protected function loginButton_clickHandler(event:MouseEvent):void
 			{
-				// currentState = "main";
-//				ro.sayHello();
-//				ro2.helloSpring();
-				ro2.test();
+				var user : User = new User();
+				user.name = userNameInput.selectedItem;
+				user.password = pwdInput.text;
+				systemService.login(user);
 			}
 			
-			private function sayHelloResult(event : ResultEvent) : void
+			private function loginResult(event : ResultEvent) : void
 			{
-				Alert.show(String(event.result));
+				var success : Boolean = Boolean(event.result);
+				if(success) {
+					currentState = "main";
+				} else {
+					Alert.show("用户名或者密码错误！");
+				}
 			}
 			
 			private function testResult(event : ResultEvent) : void
 			{
 				Alert.show(Boolean(event.result).toString());
 			}
+
+			protected function userNameInput_changeHandler(event:IndexChangeEvent):void
+			{
+				if(userNameInput.selectedIndex == ComboBox.CUSTOM_SELECTED_ITEM) {
+					userList.addItem(userNameInput.selectedItem);
+					userNameInput.selectedIndex = userList.length - 1;
+				}
+			}
+
 		]]>
 	</fx:Script>
 	
 	<fx:Declarations>
-		<s:RemoteObject id="ro" destination="helloWorld">
-			<s:method name="sayHello" result="sayHelloResult(event)" />
-		</s:RemoteObject>
-		<s:RemoteObject id="ro2" destination="hwSpring">
+		<s:RemoteObject id="systemService" destination="systemService">
 			<s:channelSet>
 				<s:ChannelSet>
 					<s:AMFChannel id="myAmf" uri="messagebroker/amf"/>
 				</s:ChannelSet>
 			</s:channelSet>
-			<s:method name="helloSpring" result="sayHelloResult(event)" />
-			<s:method name="test" result="testResult(event)" />
+			<s:method name="login" result="loginResult(event)" />
 		</s:RemoteObject>
 	</fx:Declarations>
 
@@ -49,8 +68,10 @@
 	</s:states>
 	<s:Label includeIn="login" x="386" y="231" text="用户名"/>
 	<s:Label includeIn="login" x="398" y="261" text="密码"/>
-	<s:ComboBox includeIn="login" x="430" y="225" width="128" id="userNameInput"/>
-	<s:TextInput includeIn="login" x="430" y="256" id="pwdInput"/>
+	<s:ComboBox includeIn="login" x="430" y="225" width="128" id="userNameInput"
+			    dataProvider="{userList}"
+			    change="userNameInput_changeHandler(event)"/>
+	<s:TextInput includeIn="login" x="430" y="256" id="pwdInput" displayAsPassword="true"/>
 	<s:Button includeIn="login" x="430" y="286" label="登录" id="loginButton" click="loginButton_clickHandler(event)"/>
 	<s:Group includeIn="main" width="100%" height="80">
 		<s:Label x="10" y="10" text="Library System v1.0"/>
