@@ -12,7 +12,7 @@
 
 	<destination id="helloWorld">   
 		<properties>
-			<source>pro.libsys.test.HelloWorld</source>
+			<source>project.libsys.test.HelloWorld</source>
 		</properties>
 	</destination>  
 </service>

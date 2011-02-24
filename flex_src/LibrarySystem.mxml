@@ -10,7 +10,7 @@
 			import mx.controls.Alert;
 			import mx.rpc.events.ResultEvent;
 			
-			import pro.libsys.beans.User;
+			import project.libsys.beans.User;
 			
 			import spark.events.IndexChangeEvent;
 			

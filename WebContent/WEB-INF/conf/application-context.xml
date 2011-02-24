@@ -36,12 +36,12 @@
     </bean>
     
     <bean id="userDao" parent="dao"
-    	  class="pro.libsys.dao.UserDao"/>
+    	  class="project.libsys.dao.UserDao"/>
     <bean id="bookDao" parent="dao"
-    	  class="pro.libsys.dao.BookDao"/>
+    	  class="project.libsys.dao.BookDao"/>
     	  
     <bean id="systemService"
-    	  class="pro.libsys.service.impl.SystemServiceImpl">
+    	  class="project.libsys.service.impl.SystemServiceImpl">
     	  <property name="userDao" ref="userDao"/>
 	</bean>
 	<!-- spring-blazeds configuration -->

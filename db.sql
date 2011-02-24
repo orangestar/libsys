@@ -1,6 +1,6 @@
 /*
 SQLyog Ultimate v8.7 
-MySQL - 5.5.9 : Database - libsys
+MySQL - 5.5.8 : Database - libsys
 *********************************************************************
 */
 
@@ -12,7 +12,7 @@ MySQL - 5.5.9 : Database - libsys
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-CREATE DATABASE /*!32312 IF NOT EXISTS*/`libsys` /*!40100 DEFAULT CHARACTER SET utf8 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`libsys` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
 
 USE `libsys`;
 
@@ -46,8 +46,8 @@ CREATE TABLE `lend` (
   KEY `FK_lend_books` (`book_id`),
   KEY `FK_lend_readers` (`reader_id`),
   KEY `FK_lend_users` (`user_id`),
-  CONSTRAINT `FK_lend_punish` FOREIGN KEY (`id`) REFERENCES `punish` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_lend_books` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`),
+  CONSTRAINT `FK_lend_punish` FOREIGN KEY (`id`) REFERENCES `punish` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_lend_readers` FOREIGN KEY (`reader_id`) REFERENCES `readers` (`id`),
   CONSTRAINT `FK_lend_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -104,11 +104,9 @@ CREATE TABLE `users` (
   `password` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `NameIndex` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 /*Data for the table `users` */
-
-insert  into `users`(`id`,`name`,`password`) values (1,'admin','admin');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
