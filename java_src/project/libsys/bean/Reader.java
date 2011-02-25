@@ -6,6 +6,8 @@ public class Reader {
 	
 	private String name;
 	
+	private boolean male;
+	
 	public int getId() {
 		return id;
 	}
@@ -30,6 +32,4 @@ public class Reader {
 		this.male = male;
 	}
 
-	private boolean male;
-	
 }

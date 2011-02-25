@@ -8,9 +8,11 @@
 		<![CDATA[
 			import mx.collections.ArrayList;
 			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
 			import project.libsys.beans.User;
+			import project.libsys.utils.Session;
 			
 			import spark.events.IndexChangeEvent;
 			
@@ -29,15 +31,16 @@
 			{
 				var success : Boolean = Boolean(event.result);
 				if(success) {
+					Session.instance.userName = userNameInput.selectedItem;
 					currentState = "main";
 				} else {
 					Alert.show("用户名或者密码错误！");
 				}
 			}
 			
-			private function testResult(event : ResultEvent) : void
+			private function loginFault(event : FaultEvent) : void
 			{
-				Alert.show(Boolean(event.result).toString());
+				Alert.show(event.fault.faultString);
 			}
 
 			protected function userNameInput_changeHandler(event:IndexChangeEvent):void
@@ -58,7 +61,7 @@
 					<s:AMFChannel id="myAmf" uri="messagebroker/amf"/>
 				</s:ChannelSet>
 			</s:channelSet>
-			<s:method name="login" result="loginResult(event)" />
+			<s:method name="login" result="loginResult(event)" fault="loginFault(event)"/>
 		</s:RemoteObject>
 	</fx:Declarations>
 
@@ -75,15 +78,26 @@
 	<s:Button includeIn="login" x="430" y="286" label="登录" id="loginButton" click="loginButton_clickHandler(event)"/>
 	<s:Group includeIn="main" width="100%" height="80">
 		<s:Label x="10" y="10" text="Library System v1.0"/>
+		<s:HGroup bottom="10" right="10">
+			<s:Label text="用户名: {userNameInput.selectedItem}" />
+			<mx:LinkButton label="退出" />
+		</s:HGroup>
 	</s:Group>
 	<s:HGroup includeIn="main" left="0" right="0" top="80" bottom="0" gap="0">
 		<s:Group width="200" height="100%">
-			<s:Rect width="100%" height="100%">
-				<s:fill>
-					<s:SolidColor color="0xfff000" />
-				</s:fill>
-			</s:Rect>
 			<mx:Image verticalCenter="0" right="0" width="13"/>
+			<mx:Tree x="0" y="0" width="200" height="548" showRoot="false" labelField="node">
+				<mx:dataProvider>
+					<fx:XML>
+						<menu>
+							<node>书刊借还</node>
+							<node>书刊管理</node>
+							<node>读者管理</node>
+							<node>用户管理</node>
+						</menu>
+					</fx:XML>
+				</mx:dataProvider>
+			</mx:Tree>
 		</s:Group>
 		<s:Group width="100%" height="100%">
 			<s:Rect width="100%" height="100%">
