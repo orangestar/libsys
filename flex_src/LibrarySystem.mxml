@@ -2,29 +2,44 @@
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
-			   minWidth="955" minHeight="600" currentState="login">
+			   xmlns:modules="project.libsys.modules.*"
+			   xmlns:c="project.libsys.components.*"
+			   minWidth="955" minHeight="600" currentState="login"
+			   creationComplete="creationCompleteHandler(event)">
 
 	<fx:Script>
 		<![CDATA[
 			import mx.collections.ArrayList;
 			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.events.StateChangeEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.BrowserManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
 			import project.libsys.beans.User;
+			import project.libsys.modules.LendBookComp;
+			import project.libsys.skins.CloseableTabBarSkin;
 			import project.libsys.utils.Session;
 			
 			import spark.events.IndexChangeEvent;
 			
 			[Bindable]
-			private var userList : ArrayList = new ArrayList([""]);
+			private var userList : ArrayList = new ArrayList(["admin"]);
+			
+			private var validators : Array;
 			
 			protected function loginButton_clickHandler(event:MouseEvent):void
 			{
-				var user : User = new User();
-				user.name = userNameInput.selectedItem;
-				user.password = pwdInput.text;
-				systemService.login(user);
+				var results : Array = Validator.validateAll(validators);
+				if(results.length == 0) {
+					var user : User = new User();
+					user.name = userNameInput.selectedItem;
+					user.password = pwdInput.text;
+					systemService.login(user);
+				}
 			}
 			
 			private function loginResult(event : ResultEvent) : void
@@ -51,8 +66,36 @@
 				}
 			}
 
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				BrowserManager.getInstance().setTitle("图书管理系统");
+				validators = [nameRequire, passwordRequire];
+			}
+
+			protected function menuTree_itemClickHandler(event:ListEvent):void
+			{
+				var item : Object = menuTree.selectedItem;
+				if(menuTree.dataDescriptor.isBranch(item)) {
+					menuTree.expandItem(item, !menuTree.isItemOpen(item), false);
+				} else {
+					var n : LendBookComp = new LendBookComp();
+					n.label = "test";
+					mainTabBar.dataProvider.addItem(n);
+					mainTabBar.setCloseableTab(mainPage.length - 1, true);
+				}
+			}
+
 		]]>
 	</fx:Script>
+	
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		@namespace c "project.libsys.components.*";
+		.errorTip {
+			fontSize: 12;
+		}
+	</fx:Style>
 	
 	<fx:Declarations>
 		<s:RemoteObject id="systemService" destination="systemService">
@@ -63,22 +106,51 @@
 			</s:channelSet>
 			<s:method name="login" result="loginResult(event)" fault="loginFault(event)"/>
 		</s:RemoteObject>
+		
+		<mx:Validator id="nameRequire" required="true"
+					  source="{userNameInput}" property="selectedItem"/>
+		<mx:Validator id="passwordRequire" required="true"
+					  source="{pwdInput}" property="text"/>
+		
+		<fx:XML id="menuData">
+			<menu>
+				<node label="借还">
+					<node label="书刊借还"/>
+				</node>
+				<node label="管理">
+					<node label="书刊管理"/>
+					<node label="读者管理"/>
+					<node label="用户管理"/>
+				</node>
+			</menu>
+		</fx:XML>
 	</fx:Declarations>
 
 	<s:states>
 		<s:State name="main"/>
 		<s:State name="login"/>
 	</s:states>
-	<s:Label includeIn="login" x="386" y="231" text="用户名"/>
-	<s:Label includeIn="login" x="398" y="261" text="密码"/>
-	<s:ComboBox includeIn="login" x="430" y="225" width="128" id="userNameInput"
-			    dataProvider="{userList}"
-			    change="userNameInput_changeHandler(event)"/>
-	<s:TextInput includeIn="login" x="430" y="256" id="pwdInput" displayAsPassword="true"/>
-	<s:Button includeIn="login" x="430" y="286" label="登录" id="loginButton" click="loginButton_clickHandler(event)"/>
+	
+	<s:Group includeIn="login" horizontalCenter="0" verticalCenter="0">
+		<s:BitmapImage id="loginBgImage" horizontalCenter="0" verticalCenter="0"
+					   source="@Embed(source='/assets/login_bg.png')" />
+		<mx:Form verticalCenter="17" right="42">
+			<mx:FormItem label="用户名" required="true">
+				<s:ComboBox width="128" id="userNameInput" dataProvider="{userList}"
+							change="userNameInput_changeHandler(event)"/>
+			</mx:FormItem>
+			<mx:FormItem label="密码" required="true">
+				<s:TextInput id="pwdInput" displayAsPassword="true" text="admin"/>
+			</mx:FormItem>
+		</mx:Form>
+		<s:Button label="登录" id="loginButton"
+				  click="loginButton_clickHandler(event)" horizontalCenter="58" y="190"/>
+	</s:Group>
+	
 	<s:Group includeIn="main" width="100%" height="80">
-		<s:Label x="10" y="10" text="Library System v1.0"/>
-		<s:HGroup bottom="10" right="10">
+		<s:BitmapImage id="topImage" verticalCenter="0"
+					   source="@Embed(source='/assets/top.png')" />
+		<s:HGroup bottom="10" right="10" verticalAlign="middle">
 			<s:Label text="用户名: {userNameInput.selectedItem}" />
 			<mx:LinkButton label="退出" />
 		</s:HGroup>
@@ -86,25 +158,16 @@
 	<s:HGroup includeIn="main" left="0" right="0" top="80" bottom="0" gap="0">
 		<s:Group width="200" height="100%">
 			<mx:Image verticalCenter="0" right="0" width="13"/>
-			<mx:Tree x="0" y="0" width="200" height="548" showRoot="false" labelField="node">
-				<mx:dataProvider>
-					<fx:XML>
-						<menu>
-							<node>书刊借还</node>
-							<node>书刊管理</node>
-							<node>读者管理</node>
-							<node>用户管理</node>
-						</menu>
-					</fx:XML>
-				</mx:dataProvider>
-			</mx:Tree>
+			<mx:Tree id="menuTree" showRoot="false"
+					 labelField="@label" dataProvider="{menuData}"
+					 top="0" bottom="0" left="0" width="200"
+					 itemClick="menuTree_itemClickHandler(event)"/>
 		</s:Group>
-		<s:Group width="100%" height="100%">
-			<s:Rect width="100%" height="100%">
-				<s:fill>
-					<s:SolidColor color="0x00ffff" />
-				</s:fill>
-			</s:Rect>
-		</s:Group>
+		<s:VGroup width="100%">
+			<c:CloseableTabBar id="mainTabBar" height="26" dataProvider="{mainPage}"/>
+			<mx:ViewStack id="mainPage" width="100%" height="100%">
+				<modules:WelcomeComp label="Welcome"/>
+			</mx:ViewStack>
+		</s:VGroup>
 	</s:HGroup>
 </s:Application>
