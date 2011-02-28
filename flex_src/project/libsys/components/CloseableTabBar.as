@@ -4,10 +4,13 @@ package project.libsys.components
 	import mx.containers.ViewStack;
 	import mx.core.FlexGlobals;
 	import mx.styles.CSSStyleDeclaration;
+	import mx.utils.ObjectUtil;
 	
 	import project.libsys.events.TabBarEvent;
 	import project.libsys.skins.CloseableTabBarSkin;
+	import project.libsys.utils.AppContext;
 	
+	import spark.components.NavigatorContent;
 	import spark.components.TabBar;
 	
 	public class CloseableTabBar extends TabBar
@@ -50,6 +53,12 @@ package project.libsys.components
 		
 		private function closeHandler(e : TabBarEvent):void
 		{
+			if(dataProvider is ViewStack) {
+				var navPage : NavigatorContent = NavigatorContent(ViewStack(dataProvider).getChildAt(e.index));
+				var className : String = ObjectUtil.getClassInfo(navPage.getElementAt(0)).name;
+				var comp : String = className.substr(className.indexOf("::") + 2);
+				AppContext.instance.removeModuleIndex(comp);
+			}
 			closeTab(e.index, this.selectedIndex);
 		}
 		

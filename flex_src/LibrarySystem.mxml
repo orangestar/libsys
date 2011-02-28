@@ -29,6 +29,7 @@
 			import project.libsys.modules.ReaderManageComp;
 			import project.libsys.modules.UserManageComp;
 			import project.libsys.skins.CloseableTabBarSkin;
+			import project.libsys.utils.AppContext;
 			import project.libsys.utils.ModuleFactory;
 			import project.libsys.utils.Session;
 			
@@ -92,7 +93,7 @@
 				if(menuTree.dataDescriptor.isBranch(item)) {
 					menuTree.expandItem(item, !menuTree.isItemOpen(item), false);
 				} else {
-					moduleLoader.load("project/libsys/modules/" + item.@url + ".swf");
+					moduleLoader.load("project/libsys/modules/" + item.@comp + ".swf");
 				}
 			}
 			
@@ -100,17 +101,23 @@
 			{
 				var module : IModuleInfo = event.module;
 				var url : String = module.url;
-				var comp : String = url.substring(url.lastIndexOf("/"), url.indexOf(".swf"));
-				var navPage : NavigatorContent = new NavigatorContent();
-				navPage.addElement(module.factory.create() as IVisualElement);
-//				navPage.label = menuData.attribute("") [@comp=comp].@label;
-				mainTabBar.dataProvider.addItem(navPage);
-				mainTabBar.setCloseableTab(mainPageStack.length - 1, true);
+				var comp : String = url.substring(url.lastIndexOf("/") + 1, url.indexOf(".swf"));
+				var ctx : AppContext = AppContext.instance;
+				var idx : int = ctx.getModuleIndex(comp);
+				if(idx >= 0) {
+					mainTabBar.selectedIndex = idx;
+				} else {
+					var navPage : NavigatorContent = new NavigatorContent();
+					navPage.addElement(module.factory.create() as IVisualElement);
+					navPage.label = menuData..node.(@comp==comp).@label;
+					mainTabBar.dataProvider.addItem(navPage);
+					mainTabBar.setCloseableTab(mainPageStack.length - 1, true);
+				}
 			}
 			
 			private function onModuleLoadFailed(event : ModuleLoadEvent) : void
 			{
-				
+				Alert.show(event.message);
 			}
 
 		]]>
@@ -142,10 +149,10 @@
 		
 		<fx:XML id="menuData">
 			<menu>
-				<node label="借还">
+				<node label="借还" comp="">
 					<node label="书刊借还" comp="LendBookComp"/>
 				</node>
-				<node label="管理">
+				<node label="管理" comp="">
 					<node label="书刊管理" comp="BookManageComp"/>
 					<node label="读者管理" comp="ReaderManageComp"/>
 					<node label="用户管理" comp="UserManageComp"/>
