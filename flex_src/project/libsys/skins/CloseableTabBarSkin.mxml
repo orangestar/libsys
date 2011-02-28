@@ -16,7 +16,8 @@
 	<s:DataGroup id="dataGroup" width="100%" height="100%"
 				 itemRenderer="project.libsys.components.CloseableTabBarButton">
 		<s:layout>
-			<s:ButtonBarHorizontalLayout gap="-12"/>
+			<!-- <s:ButtonBarHorizontalLayout gap="-12"/> -->
+			<s:ButtonBarHorizontalLayout gap="2"/>
 		</s:layout>
 	</s:DataGroup>
 </s:Skin>

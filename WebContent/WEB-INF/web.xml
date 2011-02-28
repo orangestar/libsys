@@ -3,6 +3,10 @@
 	<display-name>LibrarySystem</display-name>
 
 	<context-param>
+		<param-name>webAppRootKey</param-name>
+		<param-value>LibrarySystem</param-value>
+	</context-param>
+	<context-param>
 		<param-name>flex.class.path</param-name>
 		<param-value>/WEB-INF/flex/hotfixes,/WEB-INF/flex/jars</param-value>
 	</context-param>
