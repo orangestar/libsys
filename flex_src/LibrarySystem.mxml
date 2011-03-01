@@ -103,7 +103,7 @@
 				var comp : String = url.substring(url.lastIndexOf("/"), url.indexOf(".swf"));
 				var navPage : NavigatorContent = new NavigatorContent();
 				navPage.addElement(module.factory.create() as IVisualElement);
-//				navPage.label = menuData.attribute("") [@comp=comp].@label;
+				navPage.label = menuData.(@comp==comp).@label;
 				mainTabBar.dataProvider.addItem(navPage);
 				mainTabBar.setCloseableTab(mainPageStack.length - 1, true);
 			}
