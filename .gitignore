@@ -7,4 +7,5 @@ WebContent/*.swf
 WebContent/*.html
 WebContent/history/*
 WebContent/swfobject.js
+WebContent/project/*
 WebContent/WEB-INF/classes/*

@@ -3,7 +3,4 @@
 		   xmlns:s="library://ns.adobe.com/flex/spark"
 		   xmlns:mx="library://ns.adobe.com/flex/mx"
 		   width="400" height="300">
-	<fx:Declarations>
-		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
-	</fx:Declarations>
 </mx:Module>
