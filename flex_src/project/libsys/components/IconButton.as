@@ -27,7 +27,6 @@ package project.libsys.components
 		public function IconButton()
 		{
 			super();
-			setStyle("skinClass", Class(IconButtonSkin));
 		}
 		
 	}

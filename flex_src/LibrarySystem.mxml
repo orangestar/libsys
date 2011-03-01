@@ -5,6 +5,7 @@
 			   xmlns:modules="project.libsys.modules.*"
 			   xmlns:c="project.libsys.components.*"
 			   minWidth="955" minHeight="600" currentState="login"
+			   initialize="initializeHandler(event)"
 			   creationComplete="creationCompleteHandler(event)">
 	
 	<fx:Script>
@@ -112,6 +113,7 @@
 					navPage.label = menuData..node.(@comp==comp).@label;
 					mainTabBar.dataProvider.addItem(navPage);
 					mainTabBar.setCloseableTab(mainPageStack.length - 1, true);
+					mainTabBar.selectedItem = navPage;
 				}
 			}
 			
@@ -120,6 +122,21 @@
 				Alert.show(event.message);
 			}
 			
+			protected function initializeHandler(event:FlexEvent):void
+			{
+				var toolTipCssDecl:CSSStyleDeclaration = styleManager.getStyleDeclaration("mx.controls.ToolTip");
+				if (!toolTipCssDecl) {
+					toolTipCssDecl = new CSSStyleDeclaration("mx.controls.ToolTip");
+				}
+				toolTipCssDecl.setStyle("fontSize", 12);
+				var globalCssDecl:CSSStyleDeclaration = styleManager.getStyleDeclaration("global");
+				if (!globalCssDecl) {
+					globalCssDecl = new CSSStyleDeclaration("global");
+				}
+				globalCssDecl.setStyle("fontSize", 12);
+				globalCssDecl.setStyle("fontFamily", "宋体");
+			}
+
 		]]>
 	</fx:Script>
 	
@@ -164,7 +181,7 @@
 		<s:State name="main"/>
 		<s:State name="login"/>
 	</s:states>
-	
+
 	<s:Group includeIn="login" horizontalCenter="0" verticalCenter="0">
 		<s:BitmapImage id="loginBgImage" horizontalCenter="0" verticalCenter="0"
 					   source="@Embed(source='/assets/login_bg.png')" />
@@ -185,11 +202,11 @@
 		<s:BitmapImage id="topImage" verticalCenter="0"
 					   source="@Embed(source='/assets/top.png')" />
 		<s:HGroup bottom="10" right="10" verticalAlign="middle">
-			<s:Label text="用户名: {userNameInput.selectedItem}" />
-			<mx:LinkButton label="退出" />
+			<s:Label fontSize="16" text="用户名: {userNameInput.selectedItem}" />
+			<mx:LinkButton fontSize="16" label="退出" />
 		</s:HGroup>
 	</s:Group>
-	<s:HGroup includeIn="main" left="0" right="0" top="80" bottom="0" gap="0">
+	<s:HGroup includeIn="main" left="0" right="0" top="80" bottom="0" gap="2">
 		<s:Group width="200" height="100%">
 			<mx:Image verticalCenter="0" right="0" width="13"/>
 			<mx:Tree id="menuTree" showRoot="false"
@@ -197,7 +214,7 @@
 					 top="0" bottom="0" left="0" width="200"
 					 itemClick="menuTree_itemClickHandler(event)"/>
 		</s:Group>
-		<s:VGroup width="100%" height="100%" gap="1">
+		<s:VGroup width="100%" height="100%" gap="0">
 			<c:CloseableTabBar id="mainTabBar" height="26" dataProvider="{mainPageStack}"/>
 			<mx:ViewStack id="mainPageStack" width="100%" height="100%"/>
 		</s:VGroup>

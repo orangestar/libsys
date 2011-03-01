@@ -65,10 +65,11 @@
 	</s:Rect>
 	
 	<!-- icon -->
-	<s:BitmapImage id="icon" left="2" verticalCenter="0" source="{getStyle('icon')}" filters.disabled="{[colorMatrix]}"/>
+	<s:BitmapImage id="icon" left="4" verticalCenter="0" width="16" height="16"
+				   source="{getStyle('icon')}" filters.disabled="{[colorMatrix]}"/>
 	
 	<!-- label -->
-	<s:Label left="22" right="2" verticalCenter="0" text="{hostComponent.label}"
+	<s:Label left="22" right="4" verticalCenter="0" text="{hostComponent.label}"
 			 includeInLayout="{hostComponent.label != null || hostComponent.label != ''}"/>
 	
 </s:SparkSkin>
