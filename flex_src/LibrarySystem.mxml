@@ -6,7 +6,7 @@
 			   xmlns:c="project.libsys.components.*"
 			   minWidth="955" minHeight="600" currentState="login"
 			   creationComplete="creationCompleteHandler(event)">
-
+	
 	<fx:Script>
 		<![CDATA[
 			import mx.collections.ArrayList;
@@ -29,6 +29,7 @@
 			import project.libsys.modules.ReaderManageComp;
 			import project.libsys.modules.UserManageComp;
 			import project.libsys.skins.CloseableTabBarSkin;
+			import project.libsys.utils.AppContext;
 			import project.libsys.utils.ModuleFactory;
 			import project.libsys.utils.Session;
 			
@@ -68,7 +69,7 @@
 			{
 				Alert.show(event.fault.faultString);
 			}
-
+			
 			protected function userNameInput_changeHandler(event:IndexChangeEvent):void
 			{
 				if(userNameInput.selectedIndex == ComboBox.CUSTOM_SELECTED_ITEM) {
@@ -76,7 +77,7 @@
 					userNameInput.selectedIndex = userList.length - 1;
 				}
 			}
-
+			
 			protected function creationCompleteHandler(event:FlexEvent):void
 			{
 				BrowserManager.getInstance().setTitle("图书管理系统");
@@ -85,14 +86,14 @@
 				moduleLoader.addEventListener(ModuleLoadEvent.LOAD_SUCCESS, onModuleLoadSuccess);
 				moduleLoader.addEventListener(ModuleLoadEvent.LOAD_FAILED, onModuleLoadFailed);
 			}
-
+			
 			protected function menuTree_itemClickHandler(event:ListEvent):void
 			{
 				var item : Object = menuTree.selectedItem;
 				if(menuTree.dataDescriptor.isBranch(item)) {
 					menuTree.expandItem(item, !menuTree.isItemOpen(item), false);
 				} else {
-					moduleLoader.load("project/libsys/modules/" + item.@url + ".swf");
+					moduleLoader.load("project/libsys/modules/" + item.@comp + ".swf");
 				}
 			}
 			
@@ -100,26 +101,31 @@
 			{
 				var module : IModuleInfo = event.module;
 				var url : String = module.url;
-				var comp : String = url.substring(url.lastIndexOf("/"), url.indexOf(".swf"));
-				var navPage : NavigatorContent = new NavigatorContent();
-				navPage.addElement(module.factory.create() as IVisualElement);
+				var comp : String = url.substring(url.lastIndexOf("/") + 1, url.indexOf(".swf"));
+				var ctx : AppContext = AppContext.instance;
+				var idx : int = ctx.getModuleIndex(comp);
+				if(idx >= 0) {
+					mainTabBar.selectedIndex = idx;
+				} else {
+					var navPage : NavigatorContent = new NavigatorContent();
+					navPage.addElement(module.factory.create() as IVisualElement);
 					navPage.label = menuData..node.(@comp==comp).@label;
-				mainTabBar.dataProvider.addItem(navPage);
-				mainTabBar.setCloseableTab(mainPageStack.length - 1, true);
+					mainTabBar.dataProvider.addItem(navPage);
+					mainTabBar.setCloseableTab(mainPageStack.length - 1, true);
+				}
 			}
 			
 			private function onModuleLoadFailed(event : ModuleLoadEvent) : void
 			{
-				
+				Alert.show(event.message);
 			}
-
+			
 		]]>
 	</fx:Script>
 	
 	<fx:Style>
 		@namespace s "library://ns.adobe.com/flex/spark";
 		@namespace mx "library://ns.adobe.com/flex/mx";
-		@namespace c "project.libsys.components.*";
 		.errorTip {
 			fontSize: 12;
 		}
@@ -142,10 +148,10 @@
 		
 		<fx:XML id="menuData">
 			<menu>
-				<node label="借还">
+				<node label="借还" comp="">
 					<node label="书刊借还" comp="LendBookComp"/>
 				</node>
-				<node label="管理">
+				<node label="管理" comp="">
 					<node label="书刊管理" comp="BookManageComp"/>
 					<node label="读者管理" comp="ReaderManageComp"/>
 					<node label="用户管理" comp="UserManageComp"/>
@@ -153,7 +159,7 @@
 			</menu>
 		</fx:XML>
 	</fx:Declarations>
-
+	
 	<s:states>
 		<s:State name="main"/>
 		<s:State name="login"/>
@@ -191,10 +197,9 @@
 					 top="0" bottom="0" left="0" width="200"
 					 itemClick="menuTree_itemClickHandler(event)"/>
 		</s:Group>
-		<s:VGroup width="100%">
+		<s:VGroup width="100%" height="100%" gap="1">
 			<c:CloseableTabBar id="mainTabBar" height="26" dataProvider="{mainPageStack}"/>
-			<mx:ViewStack id="mainPageStack" width="100%" height="100%">
-			</mx:ViewStack>
+			<mx:ViewStack id="mainPageStack" width="100%" height="100%"/>
 		</s:VGroup>
 	</s:HGroup>
 </s:Application>

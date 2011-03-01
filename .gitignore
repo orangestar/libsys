@@ -9,3 +9,8 @@ WebContent/history/*
 WebContent/swfobject.js
 WebContent/project/*
 WebContent/WEB-INF/classes/*
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*
+*.REMOTE.*
+*.orig
