@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<c:Dialog xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:c="project.libsys.components.*"
+		  title="出版商" width="298" height="300"
+		  creationComplete="creationCompleteHandler(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import project.libsys.beans.Publisher;
+			
+			import spark.events.IndexChangeEvent;
+			
+			[Bindable]
+			public var pubsData : ArrayCollection;
+
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				publisherService.getPublishers();
+			}
+
+			protected function addPubButton_clickHandler(event:MouseEvent):void
+			{
+				var name : String = StringUtil.trim(nameInput.text);
+				if(name.length != 0) {
+					if(!isPublisherNameExists(name)) {
+						var publ : Publisher = new Publisher();
+						publ.name = name;
+						publisherService.addPublisher(publ);
+					}
+				}
+			}
+
+			protected function editPubButton_clickHandler(event:MouseEvent):void
+			{
+				var name : String = StringUtil.trim(nameInput.text);
+				if(name.length != 0) {
+					if(!isPublisherNameExists(name)) {
+						var publ : Publisher = Publisher(pubList.selectedItem);
+						publ.name = name;
+						publisherService.editPublisher(publ);
+					}
+				}
+			}
+
+			protected function delPubButton_clickHandler(event:MouseEvent):void
+			{
+				publisherService.deletePublisher(pubList.selectedItem.id);
+			}
+			
+			private function isPublisherNameExists(name : String) : Boolean
+			{
+				for each(var p : Publisher in pubsData) {
+					if(p.name === name) {
+						Alert.show("该出版商已经存在。");
+						pubList.selectedItem = p;
+						return true;
+					}
+				}
+				return false;
+			}
+			
+			private function addPublisherResult(event : ResultEvent) : void
+			{
+				pubsData.addItem(event.result);
+			}
+			
+			private function getPublishersResult(event : ResultEvent) : void
+			{
+				pubsData = ArrayCollection(event.result);
+			}
+			
+			private function editPublisherResult(event : ResultEvent) : void
+			{
+				if(Boolean(event.result)) {
+					pubList.selectedItem.name = StringUtil.trim(nameInput.text);
+				}
+			}
+			
+			private function deletePublisherResult(event : ResultEvent) : void
+			{
+				if(Boolean(event.result)) {
+					pubsData.removeItemAt(pubList.selectedIndex);
+				}
+			}
+			
+			private function remoteMethodFault(event : FaultEvent) : void
+			{
+				Alert.show(event.fault.faultString);
+			}
+
+			protected function pubList_changeHandler(event:IndexChangeEvent):void
+			{
+				nameInput.text = pubList.selectedItem.name;
+				nameInput.selectAll();
+			}
+
+		]]>
+	</fx:Script>
+	
+	<c:layout>
+		<s:BasicLayout/>
+	</c:layout>
+	
+	<fx:Declarations>
+		<mx:Validator required="true" requiredFieldError="出版商名字不能为空。"
+					  source="{nameInput}" property="text"
+					  trigger="{addPubButton}" triggerEvent="click" />
+		<mx:Validator required="true" requiredFieldError="出版商名字不能为空。"
+					  source="{nameInput}" property="text"
+					  trigger="{editPubButton}" triggerEvent="click" />
+		
+		<s:RemoteObject id="publisherService" destination="publisherService">
+			<s:channelSet>
+				<s:ChannelSet>
+					<s:AMFChannel uri="messagebroker/amf"/>
+				</s:ChannelSet>
+			</s:channelSet>
+			<s:method name="addPublisher" result="addPublisherResult(event)" fault="remoteMethodFault(event)"/>
+			<s:method name="getPublishers" result="getPublishersResult(event)" fault="remoteMethodFault(event)"/>
+			<s:method name="editPublisher" result="editPublisherResult(event)" fault="remoteMethodFault(event)"/>
+			<s:method name="deletePublisher" result="deletePublisherResult(event)" fault="remoteMethodFault(event)"/>
+		</s:RemoteObject>
+	</fx:Declarations>
+	
+	<s:List id="pubList" dataProvider="{pubsData}" labelField="name" x="10" y="40" width="196" height="217"
+		    change="pubList_changeHandler(event)"/>
+	
+	<s:Button id="addPubButton" label="新增" y="40" right="10"
+			  click="addPubButton_clickHandler(event)"/>
+	<s:Button id="editPubButton" enabled="{pubList.selectedIndex >= 0}" label="修改" y="69" right="10"
+			  click="editPubButton_clickHandler(event)"/>
+	<s:Button id="delPubButton" enabled="{pubList.selectedIndex >= 0}" label="删除" y="98" right="10"
+			  click="delPubButton_clickHandler(event)"/>
+	<s:Button id="closeButton" label="关闭" y="127" right="10" click="close()"/>
+	<s:Label x="10" y="15" text="出版商名字"/>
+	<s:TextInput id="nameInput" x="78" y="10" width="208"/>
+</c:Dialog>

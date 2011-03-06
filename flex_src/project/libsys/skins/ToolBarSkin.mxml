@@ -17,7 +17,7 @@
     
     <s:Rect id="background" left="0" right="0" top="0" bottom="0">
         <s:fill>
-            <s:SolidColor id="bgFill" color="#363636"/>
+            <s:SolidColor id="bgFill" color="#c8c8c8"/>
         </s:fill>
     </s:Rect>
     

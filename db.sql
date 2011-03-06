@@ -1,6 +1,6 @@
 /*
 SQLyog Ultimate v8.7 
-MySQL - 5.5.8 : Database - libsys
+MySQL - 5.5.9 : Database - libsys
 *********************************************************************
 */
 
@@ -12,7 +12,7 @@ MySQL - 5.5.8 : Database - libsys
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-CREATE DATABASE /*!32312 IF NOT EXISTS*/`libsys` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`libsys` /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 USE `libsys`;
 
@@ -27,7 +27,7 @@ CREATE TABLE `books` (
   `publisher_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_books_publisher` (`publisher_id`),
-  CONSTRAINT `FK_books_publisher` FOREIGN KEY (`publisher_id`) REFERENCES `publisher` (`id`)
+  CONSTRAINT `FK_books_publisher` FOREIGN KEY (`publisher_id`) REFERENCES `publishers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 /*Data for the table `books` */
@@ -54,24 +54,27 @@ CREATE TABLE `lend` (
 
 /*Data for the table `lend` */
 
-/*Table structure for table `publisher` */
+/*Table structure for table `publishers` */
 
-DROP TABLE IF EXISTS `publisher`;
+DROP TABLE IF EXISTS `publishers`;
 
-CREATE TABLE `publisher` (
-  `id` int(10) unsigned NOT NULL,
+CREATE TABLE `publishers` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `NameIndex` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-/*Data for the table `publisher` */
+/*Data for the table `publishers` */
+
+insert  into `publishers`(`id`,`name`) values (2,'test1212'),(3,'中文');
 
 /*Table structure for table `punish` */
 
 DROP TABLE IF EXISTS `punish`;
 
 CREATE TABLE `punish` (
-  `id` int(10) unsigned NOT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `cause` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `finished` tinyint(1) NOT NULL,
   `money` float unsigned zerofill NOT NULL,
@@ -104,9 +107,11 @@ CREATE TABLE `users` (
   `password` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `NameIndex` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 /*Data for the table `users` */
+
+insert  into `users`(`id`,`name`,`password`) values (1,'admin','21232f297a57a5a743894a0e4a801fc3');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

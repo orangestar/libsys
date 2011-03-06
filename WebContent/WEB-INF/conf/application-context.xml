@@ -39,16 +39,24 @@
     	  class="project.libsys.dao.UserDao"/>
     <bean id="bookDao" parent="dao"
     	  class="project.libsys.dao.BookDao"/>
+    <bean id="publisherDao" parent="dao"
+    	  class="project.libsys.dao.PublisherDao"/>
     	  
     <bean id="systemService"
     	  class="project.libsys.service.impl.SystemServiceImpl">
     	  <property name="userDao" ref="userDao"/>
 	</bean>
+	<bean id="publisherService"
+    	  class="project.libsys.service.impl.PublisherServiceImpl">
+    	  <property name="publisherDao" ref="publisherDao"/>
+	</bean>
+	
 	<!-- spring-blazeds configuration -->
 	<flex:message-broker>
 		<flex:remoting-service default-channels="my-amf"/>
 	</flex:message-broker>
 	
 	<flex:remoting-destination ref="systemService"/>
+	<flex:remoting-destination ref="publisherService"/>
 
 </beans>

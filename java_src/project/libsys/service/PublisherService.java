@@ -6,7 +6,7 @@ import project.libsys.bean.Publisher;
 
 public interface PublisherService {
 
-	public boolean addPublisher(Publisher publisher);
+	public Publisher addPublisher(Publisher publisher);
 	
 	public boolean editPublisher(Publisher publisher);
 	
