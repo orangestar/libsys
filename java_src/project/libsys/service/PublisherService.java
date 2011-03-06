@@ -14,6 +14,4 @@ public interface PublisherService {
 	
 	public List<Publisher> getPublishers();
 	
-	public Publisher getPublisher();
-	
 }

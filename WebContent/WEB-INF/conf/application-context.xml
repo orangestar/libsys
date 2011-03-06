@@ -41,6 +41,10 @@
     	  class="project.libsys.dao.BookDao"/>
     <bean id="publisherDao" parent="dao"
     	  class="project.libsys.dao.PublisherDao"/>
+    <bean id="lendDao" parent="dao"
+    	  class="project.libsys.dao.LendDao"/>
+    <bean id="readerDao" parent="dao"
+    	  class="project.libsys.dao.ReaderDao"/>
     	  
     <bean id="systemService"
     	  class="project.libsys.service.impl.SystemServiceImpl">
@@ -50,6 +54,22 @@
     	  class="project.libsys.service.impl.PublisherServiceImpl">
     	  <property name="publisherDao" ref="publisherDao"/>
 	</bean>
+	<bean id="bookService"
+    	  class="project.libsys.service.impl.BookServiceImpl">
+    	  <property name="bookDao" ref="bookDao"/>
+	</bean>
+	<bean id="readerService"
+    	  class="project.libsys.service.impl.ReaderServiceImpl">
+    	  <property name="readerDao" ref="readerDao"/>
+	</bean>
+	<bean id="userService"
+    	  class="project.libsys.service.impl.UserServiceImpl">
+    	  <property name="userDao" ref="userDao"/>
+	</bean>
+	<bean id="lendService"
+    	  class="project.libsys.service.impl.LendServiceImpl">
+    	  <property name="lendDao" ref="lendDao"/>
+	</bean>
 	
 	<!-- spring-blazeds configuration -->
 	<flex:message-broker>
@@ -58,5 +78,9 @@
 	
 	<flex:remoting-destination ref="systemService"/>
 	<flex:remoting-destination ref="publisherService"/>
+	<flex:remoting-destination ref="bookService"/>
+	<flex:remoting-destination ref="readerService"/>
+	<flex:remoting-destination ref="userService"/>
+	<flex:remoting-destination ref="lendService"/>
 
 </beans>

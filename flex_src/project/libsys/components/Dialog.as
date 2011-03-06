@@ -36,7 +36,7 @@ package project.libsys.components
 			PopUpManager.centerPopUp(this);
 		}
 		
-		public function close() : void
+		protected function close() : void
 		{
 			PopUpManager.removePopUp(this);
 		}

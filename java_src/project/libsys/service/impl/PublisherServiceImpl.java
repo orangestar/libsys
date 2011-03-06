@@ -27,12 +27,6 @@ public class PublisherServiceImpl implements PublisherService {
 	}
 
 	@Override
-	public Publisher getPublisher() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public List<Publisher> getPublishers() {
 		return publisherDao.getPublishers();
 	}
