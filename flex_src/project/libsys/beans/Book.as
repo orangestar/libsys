@@ -15,5 +15,19 @@ package project.libsys.beans
 		public var author : String;
 		
 		public var publisher : Publisher;
+		
+		public function clone() : Book
+		{
+			var p : Publisher = new Publisher();
+			p.id = this.publisher.id;
+			p.name = this.publisher.name;
+			var b : Book = new Book();
+			b.id = this.id;
+			b.title = this.title;
+			b.author = this.author;
+			b.publisher = p;
+			return b;
+		}
+		
 	}
 }

@@ -3,8 +3,7 @@
 		  xmlns:s="library://ns.adobe.com/flex/spark"
 		  xmlns:mx="library://ns.adobe.com/flex/mx"
 		  xmlns:c="project.libsys.components.*"
-		  title="出版商" width="298" height="300"
-		  creationComplete="creationCompleteHandler(event)">
+		  title="出版商" width="298" height="300">
 	
 	<fx:Metadata>
 		[Event(name="publishersRefresh", type="flash.events.Event")]
@@ -14,6 +13,7 @@
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
@@ -27,11 +27,6 @@
 			
 			[Bindable]
 			public var pubsData : ArrayCollection;
-
-			protected function creationCompleteHandler(event:FlexEvent):void
-			{
-				publisherService.getPublishers();
-			}
 
 			protected function addPubButton_clickHandler(event:MouseEvent):void
 			{
@@ -59,7 +54,14 @@
 
 			protected function delPubButton_clickHandler(event:MouseEvent):void
 			{
-				publisherService.deletePublisher(pubList.selectedItem.id);
+				Alert.show("确定要删除该出版商吗？", "删除", Alert.YES | Alert.NO, null, onDeleteConfirm, null, Alert.NO);
+			}
+			
+			private function onDeleteConfirm(event : CloseEvent) : void
+			{
+				if(event.detail == Alert.YES) {
+					publisherService.deletePublisher(pubList.selectedItem.id);
+				}
 			}
 			
 			private function isPublisherNameExists(name : String) : Boolean
@@ -77,11 +79,6 @@
 			private function addPublisherResult(event : ResultEvent) : void
 			{
 				pubsData.addItem(event.result);
-			}
-			
-			private function getPublishersResult(event : ResultEvent) : void
-			{
-				pubsData = ArrayCollection(event.result);
 			}
 			
 			private function editPublisherResult(event : ResultEvent) : void
@@ -137,7 +134,6 @@
 				</s:ChannelSet>
 			</s:channelSet>
 			<s:method name="addPublisher" result="addPublisherResult(event)" fault="remoteMethodFault(event)"/>
-			<s:method name="getPublishers" result="getPublishersResult(event)" fault="remoteMethodFault(event)"/>
 			<s:method name="editPublisher" result="editPublisherResult(event)" fault="remoteMethodFault(event)"/>
 			<s:method name="deletePublisher" result="deletePublisherResult(event)" fault="remoteMethodFault(event)"/>
 		</s:RemoteObject>

@@ -4,6 +4,7 @@
 .project
 .settings
 WebContent/*.swf
+WebContent/assets/*.png
 WebContent/*.html
 WebContent/history/*
 WebContent/swfobject.js

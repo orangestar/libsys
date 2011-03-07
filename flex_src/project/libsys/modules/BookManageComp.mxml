@@ -5,11 +5,19 @@
 		   xmlns:c="project.libsys.components.*"
 		   creationComplete="creationCompleteHandler(event)"
 		   width="100%" height="100%" layout="absolute">
+	<mx:states>
+		<s:State name="normal" />
+		<s:State name="saveClicked" stateGroups="clicked"/>
+		<s:State name="editClicked" stateGroups="clicked"/>
+	</mx:states>
+	
 	<fx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
@@ -20,11 +28,16 @@
 			[Bindable]
 			private var booksData : ArrayCollection;
 			
-			private var publData : ArrayCollection;
+			[Bindable]
+			public var publData : ArrayCollection;
+			
+			private var bookSaved : Book;
+			private var idxSaved : int;
 			
 			protected function pubListButton_clickHandler(event:MouseEvent):void
 			{
 				var dlg : PublisherManageDialog = new PublisherManageDialog();
+				dlg.pubsData = publData;
 				dlg.addEventListener(PublisherManageDialog.PUBLISHERS_REFRESH, onPublishersRefresh);
 				dlg.show(null, true);
 			}
@@ -36,12 +49,17 @@
 
 			private function publisherLabelFunction(item:Object, column:DataGridColumn):String
 			{
-				return item.publisher.name;
+				if(item.publisher) {
+					return item.publisher.name;
+				} else {
+					return "";
+				}
 			}
 			
 			protected function creationCompleteHandler(event:FlexEvent):void
 			{
 				bookService.getBooks();
+				publisherService.getPublishers();
 			}
 			
 			private function remoteMethodFault(event : FaultEvent) : void
@@ -52,6 +70,108 @@
 			private function getBooksResult(event : ResultEvent) : void
 			{
 				booksData = ArrayCollection(event.result);
+			}
+
+			protected function addBookButton_clickHandler(event:MouseEvent):void
+			{
+				var book : Book = new Book();
+				book.id = -1;
+				booksData.addItem(book);
+				var idx : int = booksData.length - 1;
+				bookDataGrid.editedItemPosition = {rowIndex: idx, columnIndex: 0};
+				currentState = "saveClicked";
+			}
+			
+			private function getPublishersResult(event : ResultEvent) : void
+			{
+				publData = ArrayCollection(event.result);
+			}
+			
+			private function addBookResult(event : ResultEvent) : void
+			{
+				var b : Book = Book(event.result);
+				booksData.getItemAt(booksData.length - 1).id = b.id;
+			}
+
+			protected function saveBookButton_clickHandler(event:MouseEvent):void
+			{
+				switch(currentState) {
+					case "saveClicked":
+						bookService.addBook(bookDataGrid.selectedItem);
+						break;
+					case "editClicked":
+						bookService.editBook(bookDataGrid.selectedItem);
+						break;
+				}
+				currentState = "normal";
+			}
+
+			protected function cancelButton_clickHandler(event:MouseEvent):void
+			{
+				switch(currentState) {
+					case "saveClicked":
+						booksData.removeItemAt(booksData.length - 1);
+						break;
+					case "editClicked":
+						booksData.removeItemAt(idxSaved);
+						booksData.addItemAt(bookSaved, idxSaved);
+						bookDataGrid.selectedIndex = idxSaved;
+						break;
+				}
+				currentState = "normal";
+			}
+
+			protected function deleteBookButton_clickHandler(event:MouseEvent):void
+			{
+				Alert.show("确定要删除该书信息吗？", "删除", Alert.YES | Alert.NO, null, onDeleteConfirm, null, Alert.NO);
+				currentState = "normal";
+			}
+			
+			private function onDeleteConfirm(event : CloseEvent) : void
+			{
+				if(event.detail == Alert.YES) {
+					bookService.deleteBook(bookDataGrid.selectedItem.id);
+				}
+			}
+			
+			private function deleteBookResult(event : ResultEvent) : void
+			{
+				if(Boolean(event.result)) {
+					booksData.removeItemAt(bookDataGrid.selectedIndex);
+				}
+			}
+
+			protected function editBookButton_clickHandler(event:MouseEvent):void
+			{
+				idxSaved = bookDataGrid.selectedIndex;
+				bookSaved = bookDataGrid.selectedItem.clone();
+				bookDataGrid.editedItemPosition = {rowIndex: bookDataGrid.selectedIndex, columnIndex: 0};
+				currentState = "editClicked";
+			}
+
+			protected function bookDataGrid_itemClickHandler(event:ListEvent):void
+			{
+				switch(currentState) {
+					case "editClicked":
+						if(idxSaved != event.rowIndex) {
+							Alert.show("请先处理正在编辑的内容。", "", Alert.YES, null, onEditPositionBack);
+						}
+						break;
+				}
+			}
+			
+			private function onEditPositionBack(event : CloseEvent) : void
+			{
+				bookDataGrid.editedItemPosition = {rowIndex: idxSaved, columnIndex: 0};
+			}
+			
+			private function editBookResult(event : ResultEvent) : void
+			{
+				if(!Boolean(event.result)) {
+					booksData.removeItemAt(idxSaved);
+					booksData.addItemAt(bookSaved, idxSaved);
+					bookDataGrid.selectedIndex = idxSaved;
+				}
 			}
 
 		]]>
@@ -65,21 +185,84 @@
 				</s:ChannelSet>
 			</s:channelSet>
 			<s:method name="getBooks" result="getBooksResult(event)" fault="remoteMethodFault(event)"/>
+			<s:method name="addBook" result="addBookResult(event)" fault="remoteMethodFault(event)"/>
+			<s:method name="deleteBook" result="deleteBookResult(event)" fault="remoteMethodFault(event)"/>
+			<s:method name="editBook" result="editBookResult(event)" fault="remoteMethodFault(event)"/>
+		</s:RemoteObject>
+		
+		<s:RemoteObject id="publisherService" destination="publisherService">
+			<s:channelSet>
+				<s:ChannelSet>
+					<s:AMFChannel uri="messagebroker/amf"/>
+				</s:ChannelSet>
+			</s:channelSet>
+			<s:method name="getPublishers" result="getPublishersResult(event)" fault="remoteMethodFault(event)"/>
 		</s:RemoteObject>
 	</fx:Declarations>
 	
 	<c:ToolBar>
-		<c:IconButton label="增加" icon="@Embed(source='/assets/add.png')"/>
-		<c:IconButton label="删除" icon="@Embed(source='/assets/del.png')"/>
-		<c:IconButton label="修改" icon="@Embed(source='/assets/edit.png')"/>
+		<c:IconButton id="addBookButton" label="增加" icon="@Embed(source='/assets/add.png')"
+					  enabled.normal="true" enabled.clicked="false"
+					  click="addBookButton_clickHandler(event)"/>
+		<c:IconButton id="deleteBookButton" label="删除" icon="@Embed(source='/assets/del.png')"
+					  enabled="{bookDataGrid.selectedIndex >= 0 &amp;&amp; bookDataGrid.selectedItem.id > -1}"
+					  click="deleteBookButton_clickHandler(event)"/>
+		<c:IconButton id="editBookButton" label="修改" icon="@Embed(source='/assets/edit.png')"
+					  enabled="{bookDataGrid.selectedIndex >= 0 &amp;&amp; bookDataGrid.selectedItem.id > -1}"
+					  click="editBookButton_clickHandler(event)"/>
+		<c:IconButton id="saveBookButton" label="保存" icon="@Embed(source='/assets/save.png')"
+					  enabled.normal="false" enabled.clicked="true"
+					  click="saveBookButton_clickHandler(event)"/>
+		<c:IconButton id="cancelButton" label="取消" icon="@Embed(source='/assets/cancel.png')"
+					  enabled.normal="false" enabled.clicked="true"
+					  click="cancelButton_clickHandler(event)"/>
 		<c:IconButton id="pubListButton" label="出版商" icon="@Embed(source='/assets/publisher.png')"
 					  click="pubListButton_clickHandler(event)"/>
 	</c:ToolBar>
-	<mx:DataGrid top="30" width="100%" bottom="2" dataProvider="{booksData}">
+	<mx:DataGrid id="bookDataGrid" top="30" width="100%" bottom="2" dataProvider="{booksData}"
+				 editable.normal="false" editable.clicked="true"
+				 itemClick="bookDataGrid_itemClickHandler(event)">
 		<mx:columns>
 			<mx:DataGridColumn headerText="标题" dataField="title"/>
 			<mx:DataGridColumn headerText="作者" dataField="author"/>
-			<mx:DataGridColumn headerText="出版商" labelFunction="publisherLabelFunction"/>
+			<mx:DataGridColumn headerText="出版商" labelFunction="publisherLabelFunction">
+				<mx:itemEditor>
+					<fx:Component>
+						<s:MXDataGridItemRenderer width="100%" height="100%">
+							<fx:Script>
+								<![CDATA[
+									import project.libsys.beans.Publisher;
+									
+									import spark.events.IndexChangeEvent;
+									
+									override public function set data(value : Object) : void
+									{
+										super.data = value;
+										if(data.publisher) {
+											for each(var publ : Publisher in outerDocument.publData) {
+												if(publ.id === data.publisher.id) {
+													publDropDownList.selectedItem = publ;
+												}
+											}
+										}
+									}
+									
+									protected function publDropDownList_changeHandler(event:IndexChangeEvent):void
+									{
+										var publ : Publisher = new Publisher();
+										publ.id = publDropDownList.selectedItem.id;
+										publ.name = publDropDownList.selectedItem.name;
+										data.publisher = publ;
+									}
+								]]>
+							</fx:Script>
+							<s:DropDownList id="publDropDownList" width="100%" height="100%" labelField="name"
+											dataProvider="{outerDocument.publData}"
+										    change="publDropDownList_changeHandler(event)"/>
+						</s:MXDataGridItemRenderer>
+					</fx:Component>
+				</mx:itemEditor>
+			</mx:DataGridColumn>
 		</mx:columns>
 	</mx:DataGrid>
 </mx:Module>

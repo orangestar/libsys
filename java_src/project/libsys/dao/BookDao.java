@@ -28,6 +28,16 @@ public class BookDao extends AbstractDao {
 		return jdbcTemplate.query(sql, new BookRowMapper());
 	}
 	
+	public boolean editBook(Book book) {
+		String sql = "UPDATE books SET title = ?, author = ?, publisher_id = ? WHERE id = ?";
+		return jdbcTemplate.update(sql, book.getTitle(), book.getAuthor(), book.getPublisher().getId(), book.getId()) == 1;
+	}
+	
+	public boolean deleteBook(int id) {
+		String sql = "DELETE FROM books WHERE id = ?";
+		return jdbcTemplate.update(sql, id) == 1;
+	}
+	
 	@Override
 	protected void initJdbcInsert() {
 		jdbcInsert = new SimpleJdbcInsert(dataSource)
