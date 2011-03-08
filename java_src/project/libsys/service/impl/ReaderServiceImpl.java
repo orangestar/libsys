@@ -2,44 +2,43 @@ package project.libsys.service.impl;
 
 import java.util.List;
 
-import project.libsys.bean.User;
+import project.libsys.bean.Reader;
 import project.libsys.dao.ReaderDao;
-import project.libsys.service.UserService;
+import project.libsys.service.ReaderService;
 
-public class ReaderServiceImpl implements UserService {
+public class ReaderServiceImpl implements ReaderService {
 	
 	private ReaderDao readerDao;
 
 	@Override
-	public boolean addUser(User user) {
+	public boolean addReader(Reader reader) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean deleteUser(int userId) {
+	public boolean deleteReader(int readerId) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean editUser(User user) {
+	public boolean editReader(Reader reader) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public User getUser() {
+	public Reader getReader() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<User> getUsers() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Reader> getReaders() {
+		return readerDao.getReaders();
 	}
-
+	
 	public ReaderDao getReaderDao() {
 		return readerDao;
 	}

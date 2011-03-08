@@ -2,5 +2,71 @@
 <mx:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		   xmlns:s="library://ns.adobe.com/flex/spark"
 		   xmlns:mx="library://ns.adobe.com/flex/mx"
-		   width="400" height="300">
+		   xmlns:c="project.libsys.components.*"
+		   creationComplete="creationCompleteHandler(event)"
+		   width="100%" height="100%" layout="absolute">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var readersData : ArrayCollection;
+
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				readerService.getReaders();
+			}
+			
+			private function remoteMethodFault(event : FaultEvent) : void
+			{
+				Alert.show(event.fault.faultString);
+			}
+			
+			private function getReadersResult(event : ResultEvent) : void
+			{
+				readersData = ArrayCollection(event.result);
+			}
+
+		]]>
+	</fx:Script>
+	
+	<mx:states>
+		<s:State name="normal" />
+		<s:State name="saveClicked" stateGroups="clicked"/>
+		<s:State name="editClicked" stateGroups="clicked"/>
+	</mx:states>
+	
+	<fx:Declarations>
+		<s:RemoteObject id="readerService" destination="readerService">
+			<s:channelSet>
+				<s:ChannelSet>
+					<s:AMFChannel uri="messagebroker/amf"/>
+				</s:ChannelSet>
+			</s:channelSet>
+			<s:method name="getReaders" result="getReadersResult(event)" fault="remoteMethodFault(event)"/>
+		</s:RemoteObject>
+	</fx:Declarations>
+	
+	<c:ToolBar>
+		<c:IconButton id="addBookButton" label="增加" icon="@Embed(source='/assets/add.png')"
+					  enabled.normal="true" enabled.clicked="false"/>
+		<c:IconButton id="deleteBookButton" label="删除" icon="@Embed(source='/assets/del.png')"
+					  enabled="{readerDataGrid.selectedIndex >= 0 &amp;&amp; readerDataGrid.selectedItem.id > -1}"/>
+		<c:IconButton id="editBookButton" label="修改" icon="@Embed(source='/assets/edit.png')"
+					  enabled="{readerDataGrid.selectedIndex >= 0 &amp;&amp; readerDataGrid.selectedItem.id > -1}"/>
+		<c:IconButton id="saveBookButton" label="保存" icon="@Embed(source='/assets/save.png')"
+					  enabled.normal="false" enabled.clicked="true"/>
+		<c:IconButton id="cancelButton" label="取消" icon="@Embed(source='/assets/cancel.png')"
+					  enabled.normal="false" enabled.clicked="true"/>
+	</c:ToolBar>
+	<mx:DataGrid id="readerDataGrid" top="30" width="100%" bottom="2">
+		<mx:columns>
+			<mx:DataGridColumn headerText="姓名" dataField="name"/>
+			<mx:DataGridColumn headerText="性别" dataField="sex"/>
+		</mx:columns>
+	</mx:DataGrid>
 </mx:Module>
