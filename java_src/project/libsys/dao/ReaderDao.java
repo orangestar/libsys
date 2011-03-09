@@ -15,6 +15,11 @@ public class ReaderDao extends AbstractDao {
 		return jdbcTemplate.query(sql, new ReaderRowMapper());
 	}
 
+	public boolean deleteReader(int id) {
+		String sql = "DELETE FROM readers WHERE id = ?";
+		return jdbcTemplate.update(sql, id) == 1;
+	}
+	
 	@Override
 	protected void initJdbcInsert() {
 		// TODO Auto-generated method stub

@@ -18,8 +18,7 @@ public class ReaderServiceImpl implements ReaderService {
 
 	@Override
 	public boolean deleteReader(int readerId) {
-		// TODO Auto-generated method stub
-		return false;
+		return readerDao.deleteReader(readerId);
 	}
 
 	@Override

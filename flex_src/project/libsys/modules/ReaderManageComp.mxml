@@ -9,9 +9,12 @@
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
+			
+			import project.libsys.beans.Reader;
 			
 			[Bindable]
 			private var readersData : ArrayCollection;
@@ -31,6 +34,57 @@
 				readersData = ArrayCollection(event.result);
 			}
 
+			protected function addReaderButton_clickHandler(event:MouseEvent):void
+			{
+				var reader : Reader = new Reader();
+				reader.id = -1;
+				reader.male = true;
+				readersData.addItem(reader);
+				var idx : int = readersData.length - 1;
+				readerDataGrid.editedItemPosition = {rowIndex: idx, columnIndex: 0};
+				currentState = "saveClicked";
+			}
+
+			protected function cancelButton_clickHandler(event:MouseEvent):void
+			{
+				switch(currentState) {
+					case "saveClicked":
+						readersData.removeItemAt(readersData.length - 1);
+						break;
+					case "editClicked":
+//						booksData.removeItemAt(idxSaved);
+//						booksData.addItemAt(bookSaved, idxSaved);
+//						bookDataGrid.selectedIndex = idxSaved;
+						break;
+				}
+				currentState = "normal";
+			}
+			
+			private function maleLabelFunction(item:Object, column:DataGridColumn):String
+			{
+				return item.male ? "男" : "女";
+			}
+
+			protected function deleteReaderButton_clickHandler(event:MouseEvent):void
+			{
+				Alert.show("确定要删除该书信息吗？", "删除", Alert.YES | Alert.NO, null, onDeleteConfirm, null, Alert.NO);
+				currentState = "normal";
+			}
+			
+			private function onDeleteConfirm(event : CloseEvent) : void
+			{
+				if(event.detail == Alert.YES) {
+					readerService.deleteReader(readerDataGrid.selectedItem.id);
+				}
+			}
+			
+			private function deleteReaderResult(event : ResultEvent) : void
+			{
+				if(Boolean(event.result)) {
+					readersData.removeItemAt(readerDataGrid.selectedIndex);
+				}
+			}
+
 		]]>
 	</fx:Script>
 	
@@ -48,25 +102,63 @@
 				</s:ChannelSet>
 			</s:channelSet>
 			<s:method name="getReaders" result="getReadersResult(event)" fault="remoteMethodFault(event)"/>
+			<s:method name="deleteReader" result="deleteReaderResult(event)" fault="remoteMethodFault(event)"/>
 		</s:RemoteObject>
 	</fx:Declarations>
 	
 	<c:ToolBar>
-		<c:IconButton id="addBookButton" label="增加" icon="@Embed(source='/assets/add.png')"
-					  enabled.normal="true" enabled.clicked="false"/>
-		<c:IconButton id="deleteBookButton" label="删除" icon="@Embed(source='/assets/del.png')"
+		<c:IconButton id="addReaderButton" label="增加" icon="@Embed(source='/assets/add.png')"
+					  enabled.normal="true" enabled.clicked="false"
+					  click="addReaderButton_clickHandler(event)"/>
+		<c:IconButton id="deleteReaderButton" label="删除" icon="@Embed(source='/assets/del.png')"
+					  enabled="{readerDataGrid.selectedIndex >= 0 &amp;&amp; readerDataGrid.selectedItem.id > -1}"
+					  click="deleteReaderButton_clickHandler(event)"/>
+		<c:IconButton id="editReaderButton" label="修改" icon="@Embed(source='/assets/edit.png')"
 					  enabled="{readerDataGrid.selectedIndex >= 0 &amp;&amp; readerDataGrid.selectedItem.id > -1}"/>
-		<c:IconButton id="editBookButton" label="修改" icon="@Embed(source='/assets/edit.png')"
-					  enabled="{readerDataGrid.selectedIndex >= 0 &amp;&amp; readerDataGrid.selectedItem.id > -1}"/>
-		<c:IconButton id="saveBookButton" label="保存" icon="@Embed(source='/assets/save.png')"
+		<c:IconButton id="saveReaderButton" label="保存" icon="@Embed(source='/assets/save.png')"
 					  enabled.normal="false" enabled.clicked="true"/>
 		<c:IconButton id="cancelButton" label="取消" icon="@Embed(source='/assets/cancel.png')"
-					  enabled.normal="false" enabled.clicked="true"/>
+					  enabled.normal="false" enabled.clicked="true"
+					  click="cancelButton_clickHandler(event)"/>
 	</c:ToolBar>
-	<mx:DataGrid id="readerDataGrid" top="30" width="100%" bottom="2">
+	<mx:DataGrid id="readerDataGrid" top="30" width="100%" bottom="2" dataProvider="{readersData}"
+				 editable.normal="false" editable.saveClicked="true" editable.editClicked="true">
 		<mx:columns>
 			<mx:DataGridColumn headerText="姓名" dataField="name"/>
-			<mx:DataGridColumn headerText="性别" dataField="sex"/>
+			<mx:DataGridColumn headerText="性别" labelFunction="maleLabelFunction">
+				<mx:itemEditor>
+					<fx:Component>
+						<s:MXDataGridItemRenderer width="100%" height="100%">
+							<fx:Script>
+								<![CDATA[
+									import spark.events.IndexChangeEvent;
+									
+									override public function set data(value : Object) : void
+									{
+										super.data = value;
+										sexList.selectedIndex = data.male ? 0 : 1;
+									}
+									
+									protected function sexList_changeHandler(event:IndexChangeEvent):void
+									{
+										data.male = sexList.selectedItem.male;
+									}
+
+								]]>
+							</fx:Script>
+							<s:DropDownList id="sexList" width="100%" height="100%" labelField="label"
+										    change="sexList_changeHandler(event)">
+								<s:dataProvider>
+									<s:ArrayList>
+										<fx:Object male="true" label="男" />
+										<fx:Object male="false" label="女" />
+									</s:ArrayList>
+								</s:dataProvider>
+							</s:DropDownList>
+						</s:MXDataGridItemRenderer>
+					</fx:Component>
+				</mx:itemEditor>
+			</mx:DataGridColumn>
 		</mx:columns>
 	</mx:DataGrid>
 </mx:Module>
