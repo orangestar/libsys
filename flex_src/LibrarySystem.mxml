@@ -62,7 +62,7 @@
 					Session.instance.userName = userNameInput.selectedItem;
 					currentState = "main";
 				} else {
-					Alert.show("用户名或者密码错误！");
+					Alert.show(resourceManager.getString('app', 'error.userNamePassword'));
 				}
 			}
 			
@@ -81,7 +81,7 @@
 			
 			protected function creationCompleteHandler(event:FlexEvent):void
 			{
-				BrowserManager.getInstance().setTitle("图书管理系统");
+				BrowserManager.getInstance().setTitle(resourceManager.getString('app', 'main.title'));
 				validators = [nameRequire, passwordRequire];
 				
 				moduleLoader.addEventListener(ModuleLoadEvent.LOAD_SUCCESS, onModuleLoadSuccess);
@@ -137,6 +137,11 @@
 				globalCssDecl.setStyle("fontFamily", "宋体");
 			}
 
+			protected function langList_changeHandler(event:IndexChangeEvent):void
+			{
+				resourceManager.localeChain = [langList.selectedItem.value];
+			}
+
 		]]>
 	</fx:Script>
 	
@@ -165,17 +170,21 @@
 		
 		<fx:XML id="menuData">
 			<menu>
-				<node label="借还" comp="">
-					<node label="书刊借还" comp="LendBookComp"/>
+				<node label="{resourceManager.getString('app', 'menu.lend')}" comp="">
+					<node label="{resourceManager.getString('app', 'menu.lend.book')}" comp="LendBookComp"/>
 				</node>
-				<node label="管理" comp="">
-					<node label="书刊管理" comp="BookManageComp"/>
-					<node label="读者管理" comp="ReaderManageComp"/>
-					<node label="用户管理" comp="UserManageComp"/>
+				<node label="{resourceManager.getString('app', 'menu.manage')}" comp="">
+					<node label="{resourceManager.getString('app', 'menu.manage.book')}" comp="BookManageComp"/>
+					<node label="{resourceManager.getString('app', 'menu.manage.reader')}" comp="ReaderManageComp"/>
+					<node label="{resourceManager.getString('app', 'menu.manage.user')}" comp="UserManageComp"/>
 				</node>
 			</menu>
 		</fx:XML>
 	</fx:Declarations>
+	
+	<fx:Metadata>
+		[ResourceBundle("app")]
+	</fx:Metadata>
 	
 	<s:states>
 		<s:State name="main"/>
@@ -186,15 +195,26 @@
 		<s:BitmapImage id="loginBgImage" horizontalCenter="0" verticalCenter="0"
 					   source="@Embed(source='/assets/login_bg.png')" />
 		<mx:Form verticalCenter="17" right="42">
-			<mx:FormItem label="用户名" required="true">
+			<mx:FormItem label="{resourceManager.getString('app', 'main.userName')}" required="true">
 				<s:ComboBox width="128" id="userNameInput" dataProvider="{userList}"
 							change="userNameInput_changeHandler(event)"/>
 			</mx:FormItem>
-			<mx:FormItem label="密码" required="true">
+			<mx:FormItem label="{resourceManager.getString('app', 'main.password')}" required="true">
 				<s:TextInput id="pwdInput" displayAsPassword="true" text="admin"/>
 			</mx:FormItem>
+			<mx:FormItem label="{resourceManager.getString('app', 'main.lang')}" required="true">
+				<s:DropDownList id="langList" labelField="label" requireSelection="true"
+							    change="langList_changeHandler(event)">
+					<s:dataProvider>
+						<s:ArrayList>
+							<fx:Object label="简体中文" value="zh_CN" />
+							<fx:Object label="English" value="en_US" />
+						</s:ArrayList>
+					</s:dataProvider>
+				</s:DropDownList>
+			</mx:FormItem>
 		</mx:Form>
-		<s:Button label="登录" id="loginButton"
+		<s:Button label="{resourceManager.getString('app', 'main.login')}" id="loginButton"
 				  click="loginButton_clickHandler(event)" horizontalCenter="58" y="190"/>
 	</s:Group>
 	
@@ -202,8 +222,8 @@
 		<s:BitmapImage id="topImage" verticalCenter="0"
 					   source="@Embed(source='/assets/top.png')" />
 		<s:HGroup bottom="10" right="10" verticalAlign="middle">
-			<s:Label fontSize="16" text="用户名: {userNameInput.selectedItem}" />
-			<mx:LinkButton fontSize="16" label="退出" />
+			<s:Label fontSize="16" text="{resourceManager.getString('app', 'main.userName')}: {userNameInput.selectedItem}" />
+			<mx:LinkButton fontSize="16" label="{resourceManager.getString('app', 'main.exit')}" />
 		</s:HGroup>
 	</s:Group>
 	<s:HGroup includeIn="main" left="0" right="0" top="80" bottom="0" gap="2">

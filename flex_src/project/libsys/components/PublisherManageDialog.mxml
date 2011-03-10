@@ -3,7 +3,7 @@
 		  xmlns:s="library://ns.adobe.com/flex/spark"
 		  xmlns:mx="library://ns.adobe.com/flex/mx"
 		  xmlns:c="project.libsys.components.*"
-		  title="出版商" width="298" height="300">
+		  title="{resourceManager.getString('app', 'dialog.publisher.title')}" width="298" height="300">
 	
 	<fx:Metadata>
 		[Event(name="publishersRefresh", type="flash.events.Event")]
@@ -54,7 +54,9 @@
 
 			protected function delPubButton_clickHandler(event:MouseEvent):void
 			{
-				Alert.show("确定要删除该出版商吗？", "删除", Alert.YES | Alert.NO, null, onDeleteConfirm, null, Alert.NO);
+				Alert.show(resourceManager.getString('app', 'dialog.publisher.remove.confirm'),
+						   resourceManager.getString('app', 'dialog.publisher.remove.title'),
+						   Alert.YES | Alert.NO, null, onDeleteConfirm, null, Alert.NO);
 			}
 			
 			private function onDeleteConfirm(event : CloseEvent) : void
@@ -68,7 +70,7 @@
 			{
 				for each(var p : Publisher in pubsData) {
 					if(p.name === name) {
-						Alert.show("该出版商已经存在。");
+						Alert.show(resourceManager.getString('app', 'dialog.publisher.exsits'));
 						pubList.selectedItem = p;
 						return true;
 					}
@@ -120,10 +122,10 @@
 	</c:layout>
 	
 	<fx:Declarations>
-		<mx:Validator required="true" requiredFieldError="出版商名字不能为空。"
+		<mx:Validator required="true" requiredFieldError="{resourceManager.getString('app', 'dialog.publisher.error.nameNotNull')}"
 					  source="{nameInput}" property="text"
 					  trigger="{addPubButton}" triggerEvent="click" />
-		<mx:Validator required="true" requiredFieldError="出版商名字不能为空。"
+		<mx:Validator required="true" requiredFieldError="{resourceManager.getString('app', 'dialog.publisher.error.nameNotNull')}"
 					  source="{nameInput}" property="text"
 					  trigger="{editPubButton}" triggerEvent="click" />
 		
@@ -142,13 +144,13 @@
 	<s:List id="pubList" dataProvider="{pubsData}" labelField="name" x="10" y="40" width="196" height="217"
 		    change="pubList_changeHandler(event)"/>
 	
-	<s:Button id="addPubButton" label="新增" y="40" right="10"
+	<s:Button id="addPubButton" label="{resourceManager.getString('app', 'dialog.publisher.add')}" y="40" right="10"
 			  click="addPubButton_clickHandler(event)"/>
-	<s:Button id="editPubButton" enabled="{pubList.selectedIndex >= 0}" label="修改" y="69" right="10"
+	<s:Button id="editPubButton" enabled="{pubList.selectedIndex >= 0}" label="{resourceManager.getString('app', 'dialog.publisher.edit')}" y="69" right="10"
 			  click="editPubButton_clickHandler(event)"/>
-	<s:Button id="delPubButton" enabled="{pubList.selectedIndex >= 0}" label="删除" y="98" right="10"
+	<s:Button id="delPubButton" enabled="{pubList.selectedIndex >= 0}" label="{resourceManager.getString('app', 'dialog.publisher.remove')}" y="98" right="10"
 			  click="delPubButton_clickHandler(event)"/>
-	<s:Button id="closeButton" label="关闭" y="127" right="10" click="close()"/>
-	<s:Label x="10" y="15" text="出版商名字"/>
+	<s:Button id="closeButton" label="{resourceManager.getString('app', 'dialog.publisher.close')}" y="127" right="10" click="close()"/>
+	<s:Label x="10" y="15" text="{resourceManager.getString('app', 'dialog.publisher.name')}"/>
 	<s:TextInput id="nameInput" x="78" y="10" width="208"/>
 </c:Dialog>

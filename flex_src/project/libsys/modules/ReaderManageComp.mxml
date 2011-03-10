@@ -62,12 +62,16 @@
 			
 			private function maleLabelFunction(item:Object, column:DataGridColumn):String
 			{
-				return item.male ? "男" : "女";
+				return item.male
+					? resourceManager.getString('app', 'module.reader.male')
+					: resourceManager.getString('app', 'module.reader.female');
 			}
 
 			protected function deleteReaderButton_clickHandler(event:MouseEvent):void
 			{
-				Alert.show("确定要删除该书信息吗？", "删除", Alert.YES | Alert.NO, null, onDeleteConfirm, null, Alert.NO);
+				Alert.show(resourceManager.getString('app', 'module.reader.removeCongirm'),
+						   resourceManager.getString('app', 'module.reader.remove.title'),
+						   Alert.YES | Alert.NO, null, onDeleteConfirm, null, Alert.NO);
 				currentState = "normal";
 			}
 			
@@ -107,25 +111,25 @@
 	</fx:Declarations>
 	
 	<c:ToolBar>
-		<c:IconButton id="addReaderButton" label="增加" icon="@Embed(source='/assets/add.png')"
+		<c:IconButton id="addReaderButton" label="{resourceManager.getString('app', 'module.reader.add')}" icon="@Embed(source='/assets/add.png')"
 					  enabled.normal="true" enabled.clicked="false"
 					  click="addReaderButton_clickHandler(event)"/>
-		<c:IconButton id="deleteReaderButton" label="删除" icon="@Embed(source='/assets/del.png')"
+		<c:IconButton id="deleteReaderButton" label="{resourceManager.getString('app', 'module.reader.remove')}" icon="@Embed(source='/assets/del.png')"
 					  enabled="{readerDataGrid.selectedIndex >= 0 &amp;&amp; readerDataGrid.selectedItem.id > -1}"
 					  click="deleteReaderButton_clickHandler(event)"/>
-		<c:IconButton id="editReaderButton" label="修改" icon="@Embed(source='/assets/edit.png')"
+		<c:IconButton id="editReaderButton" label="{resourceManager.getString('app', 'module.reader.edit')}" icon="@Embed(source='/assets/edit.png')"
 					  enabled="{readerDataGrid.selectedIndex >= 0 &amp;&amp; readerDataGrid.selectedItem.id > -1}"/>
-		<c:IconButton id="saveReaderButton" label="保存" icon="@Embed(source='/assets/save.png')"
+		<c:IconButton id="saveReaderButton" label="{resourceManager.getString('app', 'module.reader.save')}" icon="@Embed(source='/assets/save.png')"
 					  enabled.normal="false" enabled.clicked="true"/>
-		<c:IconButton id="cancelButton" label="取消" icon="@Embed(source='/assets/cancel.png')"
+		<c:IconButton id="cancelButton" label="{resourceManager.getString('app', 'module.reader.cancel')}" icon="@Embed(source='/assets/cancel.png')"
 					  enabled.normal="false" enabled.clicked="true"
 					  click="cancelButton_clickHandler(event)"/>
 	</c:ToolBar>
 	<mx:DataGrid id="readerDataGrid" top="30" width="100%" bottom="2" dataProvider="{readersData}"
 				 editable.normal="false" editable.saveClicked="true" editable.editClicked="true">
 		<mx:columns>
-			<mx:DataGridColumn headerText="姓名" dataField="name"/>
-			<mx:DataGridColumn headerText="性别" labelFunction="maleLabelFunction">
+			<mx:DataGridColumn headerText="{resourceManager.getString('app', 'module.reader.name')}" dataField="name"/>
+			<mx:DataGridColumn headerText="{resourceManager.getString('app', 'module.reader.sex')}" labelFunction="maleLabelFunction">
 				<mx:itemEditor>
 					<fx:Component>
 						<s:MXDataGridItemRenderer width="100%" height="100%">
@@ -150,8 +154,8 @@
 										    change="sexList_changeHandler(event)">
 								<s:dataProvider>
 									<s:ArrayList>
-										<fx:Object male="true" label="男" />
-										<fx:Object male="false" label="女" />
+										<fx:Object male="true" label="{resourceManager.getString('app', 'module.reader.male')}" />
+										<fx:Object male="false" label="{resourceManager.getString('app', 'module.reader.female')}" />
 									</s:ArrayList>
 								</s:dataProvider>
 							</s:DropDownList>

@@ -1,8 +1,3 @@
-.actionScriptProperties
-.classpath
-.flexProperties
-.project
-.settings
 WebContent/*.swf
 WebContent/assets/*.png
 WebContent/*.html

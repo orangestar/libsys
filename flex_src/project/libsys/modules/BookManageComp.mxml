@@ -123,7 +123,9 @@
 
 			protected function deleteBookButton_clickHandler(event:MouseEvent):void
 			{
-				Alert.show("确定要删除该书信息吗？", "删除", Alert.YES | Alert.NO, null, onDeleteConfirm, null, Alert.NO);
+				Alert.show(resourceManager.getString('app', 'module.book.removeConfirm'),
+						   resourceManager.getString('app', 'module.book.remove.title'),
+						   Alert.YES | Alert.NO, null, onDeleteConfirm, null, Alert.NO);
 				currentState = "normal";
 			}
 			
@@ -154,7 +156,8 @@
 				switch(currentState) {
 					case "editClicked":
 						if(idxSaved != event.rowIndex) {
-							Alert.show("请先处理正在编辑的内容。", "", Alert.YES, null, onEditPositionBack);
+							Alert.show(resourceManager.getString('app', 'module.book.editingFirst'),
+									   "", Alert.YES, null, onEditPositionBack);
 						}
 						break;
 				}
@@ -201,31 +204,31 @@
 	</fx:Declarations>
 	
 	<c:ToolBar>
-		<c:IconButton id="addBookButton" label="增加" icon="@Embed(source='/assets/add.png')"
+		<c:IconButton id="addBookButton" label="{resourceManager.getString('app', 'module.book.add')}" icon="@Embed(source='/assets/add.png')"
 					  enabled.normal="true" enabled.clicked="false"
 					  click="addBookButton_clickHandler(event)"/>
-		<c:IconButton id="deleteBookButton" label="删除" icon="@Embed(source='/assets/del.png')"
+		<c:IconButton id="deleteBookButton" label="{resourceManager.getString('app', 'module.book.remove')}" icon="@Embed(source='/assets/del.png')"
 					  enabled="{bookDataGrid.selectedIndex >= 0 &amp;&amp; bookDataGrid.selectedItem.id > -1}"
 					  click="deleteBookButton_clickHandler(event)"/>
-		<c:IconButton id="editBookButton" label="修改" icon="@Embed(source='/assets/edit.png')"
+		<c:IconButton id="editBookButton" label="{resourceManager.getString('app', 'module.book.edit')}" icon="@Embed(source='/assets/edit.png')"
 					  enabled="{bookDataGrid.selectedIndex >= 0 &amp;&amp; bookDataGrid.selectedItem.id > -1}"
 					  click="editBookButton_clickHandler(event)"/>
-		<c:IconButton id="saveBookButton" label="保存" icon="@Embed(source='/assets/save.png')"
+		<c:IconButton id="saveBookButton" label="{resourceManager.getString('app', 'module.book.save')}" icon="@Embed(source='/assets/save.png')"
 					  enabled.normal="false" enabled.clicked="true"
 					  click="saveBookButton_clickHandler(event)"/>
-		<c:IconButton id="cancelButton" label="取消" icon="@Embed(source='/assets/cancel.png')"
+		<c:IconButton id="cancelButton" label="{resourceManager.getString('app', 'module.book.cancel')}" icon="@Embed(source='/assets/cancel.png')"
 					  enabled.normal="false" enabled.clicked="true"
 					  click="cancelButton_clickHandler(event)"/>
-		<c:IconButton id="pubListButton" label="出版商" icon="@Embed(source='/assets/publisher.png')"
+		<c:IconButton id="pubListButton" label="{resourceManager.getString('app', 'module.book.publisher')}" icon="@Embed(source='/assets/publisher.png')"
 					  click="pubListButton_clickHandler(event)"/>
 	</c:ToolBar>
 	<mx:DataGrid id="bookDataGrid" top="30" width="100%" bottom="2" dataProvider="{booksData}"
 				 editable.normal="false" editable.clicked="true"
 				 itemClick="bookDataGrid_itemClickHandler(event)">
 		<mx:columns>
-			<mx:DataGridColumn headerText="标题" dataField="title"/>
-			<mx:DataGridColumn headerText="作者" dataField="author"/>
-			<mx:DataGridColumn headerText="出版商" labelFunction="publisherLabelFunction">
+			<mx:DataGridColumn headerText="{resourceManager.getString('app', 'module.book.title')}" dataField="title"/>
+			<mx:DataGridColumn headerText="{resourceManager.getString('app', 'module.book.author')}" dataField="author"/>
+			<mx:DataGridColumn headerText="{resourceManager.getString('app', 'module.book.publisher')}" labelFunction="publisherLabelFunction">
 				<mx:itemEditor>
 					<fx:Component>
 						<s:MXDataGridItemRenderer width="100%" height="100%">
