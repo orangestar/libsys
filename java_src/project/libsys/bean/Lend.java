@@ -12,6 +12,8 @@ public class Lend {
 	
 	private Date lendDate;
 	
+	private Date returnDate;
+	
 	private User user;
 
 	public int getId() {
@@ -52,6 +54,14 @@ public class Lend {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public Date getReturnDate() {
+		return returnDate;
+	}
+
+	public void setReturnDate(Date returnDate) {
+		this.returnDate = returnDate;
 	}
 	
 }

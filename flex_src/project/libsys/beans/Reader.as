@@ -13,5 +13,14 @@ package project.libsys.beans
 		public var name : String;
 		
 		public var male : Boolean;
+		
+		public function close() : Reader
+		{
+			var r : Reader = new Reader();
+			r.id = this.id;
+			r.name = this.name;
+			r.male = this.male;
+			return r;
+		}
 	}
 }

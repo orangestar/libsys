@@ -16,6 +16,8 @@ package project.libsys.beans
 		
 		public var lendDate : Date;
 		
+		public var returnDate : Date;
+		
 		public var user : User;
 	}
 }

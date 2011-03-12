@@ -38,6 +38,12 @@ public class BookDao extends AbstractDao {
 		return jdbcTemplate.update(sql, id) == 1;
 	}
 	
+	public Book getBook(String title) {
+		String sql = "SELECT books.id, books.title, books.author, books.publisher_id, publishers.name FROM books, publishers WHERE books.publisher_id = publishers.id AND books.title = ?";
+		List<Book> books = jdbcTemplate.query(sql, new BookRowMapper(), title);
+		return books.size() == 1 ? books.get(0) : null;
+	}
+	
 	@Override
 	protected void initJdbcInsert() {
 		jdbcInsert = new SimpleJdbcInsert(dataSource)

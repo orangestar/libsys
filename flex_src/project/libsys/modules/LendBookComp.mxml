@@ -2,12 +2,145 @@
 <mx:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		   xmlns:s="library://ns.adobe.com/flex/spark"
 		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:c="project.libsys.components.*"
 		   width="100%" height="100%">
-	<s:Group width="100%" height="100%">
-		<s:Rect width="100%" height="100%">
-			<s:fill>
-				<s:SolidColor color="0x393939" />
-			</s:fill>
-		</s:Rect>
-	</s:Group>
+
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import project.libsys.beans.Book;
+			import project.libsys.beans.Lend;
+			import project.libsys.beans.Reader;
+			import project.libsys.beans.User;
+			import project.libsys.utils.Session;
+			
+			[Bindable]
+			private var lendingData : ArrayList = new ArrayList();
+			
+			private function lendBookResult(event : ResultEvent) : void
+			{
+				var lend : Lend = Lend(event.result);
+				if(lend != null) {
+					lendingData.addItem(lend);
+				} else {
+					Alert.show(resourceManager.getString('app', 'module.lend.lendFailed'));
+				}
+			}
+
+			private function remoteMethodFault(event : FaultEvent) : void
+			{
+				Alert.show(event.fault.faultString);
+			}
+			
+			private function bookLabelFunction(item:Object, column:DataGridColumn):String
+			{
+				if(item.book) {
+					return item.book.title;
+				} else {
+					return "";
+				}
+			}
+			
+			private function readerLabelFunction(item:Object, column:DataGridColumn):String
+			{
+				if(item.reader) {
+					return item.reader.name;
+				} else {
+					return "";
+				}
+			}
+			
+			private function lendDateLabelFunction(item:Object, column:DataGridColumn):String
+			{
+				if(item.lendDate) {
+					return dateFormatter.format(item.lendDate);
+				} else {
+					return "";
+				}
+			}
+			
+			private function returnDateLabelFunction(item:Object, column:DataGridColumn):String
+			{
+				if(item.returnDate) {
+					return dateFormatter.format(item.returnDate);
+				} else {
+					return "";
+				}
+			}
+			
+			protected function lendButton_clickHandler(event:MouseEvent):void
+			{
+				var lend : Lend = new Lend();
+				lend.book = new Book();
+				lend.book.title = bookInput.text;
+				lend.reader = new Reader();
+				lend.reader.name = readerInput.text;
+				lend.user = new User();
+				lend.user.id = Session.instance.userId;
+				lendService.lendBook(lend);
+			}
+
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<s:RemoteObject id="lendService" destination="lendService">
+			<s:channelSet>
+				<s:ChannelSet>
+					<s:AMFChannel id="myAmf" uri="messagebroker/amf"/>
+				</s:ChannelSet>
+			</s:channelSet>
+			<s:method name="lendBook" result="lendBookResult(event)" fault="remoteMethodFault(event)"/>
+		</s:RemoteObject>
+		
+		<mx:DateFormatter id="dateFormatter" formatString="YYYY-MM-DD J:NN:SS"/>
+	</fx:Declarations>
+	
+	<c:ToolBar>
+		<c:IconButton id="lendButton" label="{resourceManager.getString('app', 'module.lend.lend')}" icon="@Embed(source='/assets/lend.png')"
+					  click="lendButton_clickHandler(event)"/>
+		<c:IconButton id="returnButton" label="{resourceManager.getString('app', 'module.lend.return')}" icon="@Embed(source='/assets/return.png')"
+					  />
+	</c:ToolBar>
+	<s:HGroup width="100%" height="26" verticalAlign="middle">
+		<s:Label text="{resourceManager.getString('app', 'module.lend.book')}"/>
+		<s:TextInput id="bookInput"/>
+		<s:Label text="{resourceManager.getString('app', 'module.lend.reader')}"/>
+		<s:TextInput id="readerInput"/>
+	</s:HGroup>
+	<mx:DataGrid width="100%" height="100%" dataProvider="{lendingData}">
+		<mx:columns>
+			<mx:DataGridColumn width="20">
+				<mx:itemRenderer>
+					<fx:Component>
+						<s:MXDataGridItemRenderer width="100%" height="100%">
+							<fx:Script>
+								<![CDATA[
+									override public function set data(value : Object) : void
+									{
+										super.data = value;
+										if(data.returnDate == null) {
+											ico.source = "assets/lend.png";
+										} else {
+											ico.source = "assets/return.png";
+										}
+									}
+								]]>
+							</fx:Script>
+							<mx:Image id="ico" width="100%" height="100%" />
+						</s:MXDataGridItemRenderer>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+			<mx:DataGridColumn headerText="{resourceManager.getString('app', 'module.lend.book')}" labelFunction="bookLabelFunction"/>
+			<mx:DataGridColumn headerText="{resourceManager.getString('app', 'module.lend.reader')}" labelFunction="readerLabelFunction"/>
+			<mx:DataGridColumn headerText="{resourceManager.getString('app', 'module.lend.lendDate')}" labelFunction="lendDateLabelFunction"/>
+			<mx:DataGridColumn headerText="{resourceManager.getString('app', 'module.lend.returnDate')}" labelFunction="returnDateLabelFunction"/>
+		</mx:columns>
+	</mx:DataGrid>
+	
 </mx:Module>

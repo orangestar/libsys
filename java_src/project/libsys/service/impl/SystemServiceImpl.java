@@ -10,12 +10,12 @@ public class SystemServiceImpl implements SystemService {
 	private UserDao userDao;
 
 	@Override
-	public boolean login(User user) {
+	public User login(User user) {
 		User userFromDb = userDao.getUser(user.getName());
 		if(userFromDb != null) {
-			return userFromDb.getPassword().equalsIgnoreCase(MessageEncoder.getMd5(user.getPassword()));
+			return userFromDb.getPassword().equalsIgnoreCase(MessageEncoder.getMd5(user.getPassword())) ? userFromDb : null;
 		}
-		return false;
+		return null;
 	}
 
 	@Override

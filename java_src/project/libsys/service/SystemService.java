@@ -4,7 +4,7 @@ import project.libsys.bean.User;
 
 public interface SystemService {
 
-	public boolean login(User user);
+	public User login(User user);
 	
 	public boolean logout();
 	

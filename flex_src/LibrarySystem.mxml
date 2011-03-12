@@ -57,9 +57,10 @@
 			
 			private function loginResult(event : ResultEvent) : void
 			{
-				var success : Boolean = Boolean(event.result);
-				if(success) {
+				var user : User = User(event.result);
+				if(user != null) {
 					Session.instance.userName = userNameInput.selectedItem;
+					Session.instance.userId = user.id;
 					currentState = "main";
 				} else {
 					Alert.show(resourceManager.getString('app', 'error.userNamePassword'));
@@ -142,6 +143,22 @@
 				resourceManager.localeChain = [langList.selectedItem.value];
 			}
 
+			protected function divImage_clickHandler(event:MouseEvent):void
+			{
+				if(menuTree.visible) {
+					hideMenuGroup.play();
+				} else {
+					showMenuGroup.play();
+				}
+			}
+
+			protected function exitButton_clickHandler(event:MouseEvent):void
+			{
+				delete Session.instance.userName;
+				delete Session.instance.userId;
+				currentState = "login";
+			}
+
 		]]>
 	</fx:Script>
 	
@@ -180,6 +197,20 @@
 				</node>
 			</menu>
 		</fx:XML>
+		
+		<s:Sequence id="hideMenuGroup">
+			<s:SetAction target="{divImage}" property="rotation" value="180" />
+			<s:SetAction target="{menuTree}" property="visible" value="false" />
+			<s:SetAction target="{menuTree}" property="includeInLayout" value="false" />
+			<s:Resize target="{menuGroup}" widthFrom="200" widthTo="16" duration="400"/>
+		</s:Sequence>
+		
+		<s:Sequence id="showMenuGroup">
+			<s:Resize target="{menuGroup}" widthFrom="16" widthTo="200" duration="400"/>
+			<s:SetAction target="{divImage}" property="rotation" value="0" />
+			<s:SetAction target="{menuTree}" property="visible" value="true" />
+			<s:SetAction target="{menuTree}" property="includeInLayout" value="true" />
+		</s:Sequence>
 	</fx:Declarations>
 	
 	<fx:Metadata>
@@ -223,16 +254,18 @@
 					   source="@Embed(source='/assets/top.png')" />
 		<s:HGroup bottom="10" right="10" verticalAlign="middle">
 			<s:Label fontSize="16" text="{resourceManager.getString('app', 'main.userName')}: {userNameInput.selectedItem}" />
-			<mx:LinkButton fontSize="16" label="{resourceManager.getString('app', 'main.exit')}" />
+			<mx:LinkButton id="exitButton" fontSize="16" label="{resourceManager.getString('app', 'main.exit')}"
+						   click="exitButton_clickHandler(event)"/>
 		</s:HGroup>
 	</s:Group>
 	<s:HGroup includeIn="main" left="0" right="0" top="80" bottom="0" gap="2">
-		<s:Group width="200" height="100%">
-			<mx:Image verticalCenter="0" right="0" width="13"/>
+		<s:Group id="menuGroup" width="200" height="100%">
 			<mx:Tree id="menuTree" showRoot="false"
 					 labelField="@label" dataProvider="{menuData}"
 					 top="0" bottom="0" left="0" width="200"
 					 itemClick="menuTree_itemClickHandler(event)"/>
+			<mx:Image id="divImage" verticalCenter="0" right="0" width="13" source="@Embed(source='/assets/arrow.png')"
+					  buttonMode="true" click="divImage_clickHandler(event)"/>
 		</s:Group>
 		<s:VGroup width="100%" height="100%" gap="0">
 			<c:CloseableTabBar id="mainTabBar" height="26" dataProvider="{mainPageStack}"/>

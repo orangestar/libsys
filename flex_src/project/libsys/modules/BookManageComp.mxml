@@ -154,6 +154,7 @@
 			protected function bookDataGrid_itemClickHandler(event:ListEvent):void
 			{
 				switch(currentState) {
+					case "saveClicked":
 					case "editClicked":
 						if(idxSaved != event.rowIndex) {
 							Alert.show(resourceManager.getString('app', 'module.book.editingFirst'),

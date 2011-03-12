@@ -11,33 +11,29 @@ public class UserServiceImpl implements UserService {
 	private UserDao userDao;
 
 	@Override
-	public boolean addUser(User user) {
-		// TODO Auto-generated method stub
-		return false;
+	public User addUser(User user) {
+		userDao.addUser(user);
+		return user;
 	}
 
 	@Override
 	public boolean deleteUser(int userId) {
-		// TODO Auto-generated method stub
-		return false;
+		return userDao.deleteUser(userId);
 	}
 
 	@Override
 	public boolean editUser(User user) {
-		// TODO Auto-generated method stub
-		return false;
+		return userDao.editUser(user);
 	}
 
 	@Override
-	public User getUser() {
-		// TODO Auto-generated method stub
-		return null;
+	public User getUser(String name) {
+		return userDao.getUser(name);
 	}
 
 	@Override
 	public List<User> getUsers() {
-		// TODO Auto-generated method stub
-		return null;
+		return userDao.getUsers();
 	}
 
 	public UserDao getUserDao() {

@@ -17,12 +17,29 @@ public class UserDao extends AbstractDao {
 			user.getPassword()
 		};
 		jdbcTemplate.update(sql, params);
+		User newUser = getUser(user.getName());
+		user.setId(newUser.getId());
 	}
 	
 	public User getUser(String name) {
 		String sql = "SELECT id, name, password FROM users WHERE name = ?";
 		List<User> list = jdbcTemplate.query(sql, new UserRowMapper(), name);
 		return list.size() == 1 ? list.get(0) : null;
+	}
+	
+	public boolean deleteUser(int id) {
+		String sql = "DELETE FROM users WHERE id = ?";
+		return jdbcTemplate.update(sql, id) == 1;
+	}
+	
+	public boolean editUser(User user) {
+		String sql = "UPDATE users SET name = ?, password = MD5(?) WHERE id = ?";
+		return jdbcTemplate.update(sql, user.getName(), user.getPassword(), user.getId()) == 1;
+	}
+	
+	public List<User> getUsers() {
+		String sql = "SELECT id, name, password FROM users";
+		return jdbcTemplate.query(sql, new UserRowMapper());
 	}
 
 	@Override

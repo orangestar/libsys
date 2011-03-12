@@ -11,9 +11,9 @@ public class ReaderServiceImpl implements ReaderService {
 	private ReaderDao readerDao;
 
 	@Override
-	public boolean addReader(Reader reader) {
-		// TODO Auto-generated method stub
-		return false;
+	public Reader addReader(Reader reader) {
+		readerDao.addReader(reader);
+		return reader;
 	}
 
 	@Override
@@ -23,14 +23,7 @@ public class ReaderServiceImpl implements ReaderService {
 
 	@Override
 	public boolean editReader(Reader reader) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public Reader getReader() {
-		// TODO Auto-generated method stub
-		return null;
+		return readerDao.editReader(reader);
 	}
 
 	@Override

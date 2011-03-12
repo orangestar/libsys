@@ -69,6 +69,8 @@
 	<bean id="lendService"
     	  class="project.libsys.service.impl.LendServiceImpl">
     	  <property name="lendDao" ref="lendDao"/>
+    	  <property name="readerDao" ref="readerDao"/>
+    	  <property name="bookDao" ref="bookDao"/>
 	</bean>
 	
 	<!-- spring-blazeds configuration -->

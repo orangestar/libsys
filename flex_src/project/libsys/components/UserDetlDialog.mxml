@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<c:Dialog xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:c="project.libsys.components.*"
+		  width="206" height="200" title="用户信息">
+	
+	<fx:Metadata>
+		[Event(name="userFinished", type="flash.events.Event")]
+	</fx:Metadata>
+
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			
+			import project.libsys.beans.User;
+			
+			public static const USER_FINISHED : String = "userFinished";
+			
+			public var _user : User;
+			
+			public function set user(value : User) : void
+			{
+				_user = value;
+			}
+			
+			public function get user() : User
+			{
+				return _user;
+			}
+			
+			override protected function commitProperties():void
+			{
+				super.commitProperties();
+				if(_user != null) {
+					if(nameInput != null) {
+						nameInput.text = _user.name;
+					}
+				}
+			}
+			
+			protected function okButton_add_clickHandler(event:MouseEvent):void
+			{
+				if(nameInput.text.length == 0) {
+					Alert.show("用户名不能为空。");
+				} else if(pwdInput.text.length == 0
+					|| pwdInput.text !== repwdInput.text) {
+					Alert.show("没有输入密码，或两次密码输入不一致。");
+				} else {
+					_user = new User();
+					_user.name = nameInput.text;
+					_user.password = pwdInput.text;
+					close();
+					dispatchEvent(new Event(USER_FINISHED));
+				}
+			}
+			
+			protected function okButton_edit_clickHandler(event:MouseEvent):void
+			{
+				if(nameInput.text.length == 0) {
+					Alert.show("用户名不能为空。");
+				} else if(editPwdCheckBox.selected
+					&& (pwdInput.text.length == 0 || pwdInput.text !== repwdInput.text)) {
+					Alert.show("没有输入密码，或两次密码输入不一致。");
+				} else {
+					_user.name = nameInput.text;
+					if(editPwdCheckBox.selected) {
+						_user.password = pwdInput.text;
+					}
+					close();
+					dispatchEvent(new Event(USER_FINISHED));
+				}
+			}
+		]]>
+	</fx:Script>
+
+	
+	<c:states>
+		<s:State name="add"/>
+		<s:State name="edit"/>
+	</c:states>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+	
+	<c:layout>
+		<s:BasicLayout/>
+	</c:layout>
+	<c:controlBarContent>
+		<s:Button id="okButton" label="确定"
+				  click.add="okButton_add_clickHandler(event)"
+				  click.edit="okButton_edit_clickHandler(event)"/>
+		<s:Button id="cancelButton" label="取消" click="close();"/>
+	</c:controlBarContent>
+	<s:Label x="10" y="14" text="用户名"/>
+	<s:TextInput x="66" y="10" id="nameInput"/>
+	<s:CheckBox id="editPwdCheckBox" x="10" y="40" label="修改密码" enabled.add="false" selected.add="true"/>
+	<s:Label x="10" y="70" text="密码" enabled.edit="{editPwdCheckBox.selected}"/>
+	<s:Label x="10" y="101" text="重复密码" enabled.edit="{editPwdCheckBox.selected}"/>
+	<s:TextInput x="66" y="66" enabled.edit="{editPwdCheckBox.selected}" id="pwdInput" displayAsPassword="true"/>
+	<s:TextInput x="66" y="96" enabled.edit="{editPwdCheckBox.selected}" id="repwdInput" displayAsPassword="true"/>
+</c:Dialog>

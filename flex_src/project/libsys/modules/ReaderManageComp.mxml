@@ -18,6 +18,9 @@
 			
 			[Bindable]
 			private var readersData : ArrayCollection;
+			
+			private var readerSaved : Reader;
+			private var idxSaved : int;
 
 			protected function creationCompleteHandler(event:FlexEvent):void
 			{
@@ -52,9 +55,9 @@
 						readersData.removeItemAt(readersData.length - 1);
 						break;
 					case "editClicked":
-//						booksData.removeItemAt(idxSaved);
-//						booksData.addItemAt(bookSaved, idxSaved);
-//						bookDataGrid.selectedIndex = idxSaved;
+						readersData.removeItemAt(idxSaved);
+						readersData.addItemAt(readerSaved, idxSaved);
+						readerDataGrid.selectedIndex = idxSaved;
 						break;
 				}
 				currentState = "normal";
@@ -89,6 +92,42 @@
 				}
 			}
 
+			protected function editReaderButton_clickHandler(event:MouseEvent):void
+			{
+				idxSaved = readerDataGrid.selectedIndex;
+				readerSaved = readerDataGrid.selectedItem.clone();
+				readerDataGrid.editedItemPosition = {rowIndex: readerDataGrid.selectedIndex, columnIndex: 0};
+				currentState = "editClicked";
+			}
+
+			protected function saveReaderButton_clickHandler(event:MouseEvent):void
+			{
+				switch(currentState) {
+					case "saveClicked":
+						readerService.addReader(readerDataGrid.selectedItem);
+						break;
+					case "editClicked":
+						readerService.editReader(readerDataGrid.selectedItem);
+						break;
+				}
+				currentState = "normal";
+			}
+			
+			private function addReaderResult(event : ResultEvent) : void
+			{
+				var r : Reader = Reader(event.result);
+				readersData.getItemAt(readersData.length - 1).id = r.id;
+			}
+			
+			private function editReaderResult(event : ResultEvent) : void
+			{
+				if(!Boolean(event.result)) {
+					readersData.removeItemAt(idxSaved);
+					readersData.addItemAt(readerSaved, idxSaved);
+					readerDataGrid.selectedIndex = idxSaved;
+				}
+			}
+
 		]]>
 	</fx:Script>
 	
@@ -107,6 +146,8 @@
 			</s:channelSet>
 			<s:method name="getReaders" result="getReadersResult(event)" fault="remoteMethodFault(event)"/>
 			<s:method name="deleteReader" result="deleteReaderResult(event)" fault="remoteMethodFault(event)"/>
+			<s:method name="addReader" result="addReaderResult(event)" fault="remoteMethodFault(event)"/>
+			<s:method name="editReader" result="editReaderResult(event)" fault="remoteMethodFault(event)"/>
 		</s:RemoteObject>
 	</fx:Declarations>
 	
@@ -118,9 +159,11 @@
 					  enabled="{readerDataGrid.selectedIndex >= 0 &amp;&amp; readerDataGrid.selectedItem.id > -1}"
 					  click="deleteReaderButton_clickHandler(event)"/>
 		<c:IconButton id="editReaderButton" label="{resourceManager.getString('app', 'module.reader.edit')}" icon="@Embed(source='/assets/edit.png')"
-					  enabled="{readerDataGrid.selectedIndex >= 0 &amp;&amp; readerDataGrid.selectedItem.id > -1}"/>
+					  enabled="{readerDataGrid.selectedIndex >= 0 &amp;&amp; readerDataGrid.selectedItem.id > -1}"
+					  click="editReaderButton_clickHandler(event)"/>
 		<c:IconButton id="saveReaderButton" label="{resourceManager.getString('app', 'module.reader.save')}" icon="@Embed(source='/assets/save.png')"
-					  enabled.normal="false" enabled.clicked="true"/>
+					  enabled.normal="false" enabled.clicked="true"
+					  click="saveReaderButton_clickHandler(event)"/>
 		<c:IconButton id="cancelButton" label="{resourceManager.getString('app', 'module.reader.cancel')}" icon="@Embed(source='/assets/cancel.png')"
 					  enabled.normal="false" enabled.clicked="true"
 					  click="cancelButton_clickHandler(event)"/>

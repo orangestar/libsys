@@ -6,7 +6,7 @@ import project.libsys.bean.User;
 
 public interface UserService {
 
-	public boolean addUser(User user);
+	public User addUser(User user);
 	
 	public boolean editUser(User user);
 	
@@ -14,6 +14,6 @@ public interface UserService {
 	
 	public List<User> getUsers();
 	
-	public User getUser();
+	public User getUser(String name);
 	
 }

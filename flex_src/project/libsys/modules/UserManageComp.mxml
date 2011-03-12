@@ -2,5 +2,138 @@
 <mx:Module xmlns:fx="http://ns.adobe.com/mxml/2009"
 		   xmlns:s="library://ns.adobe.com/flex/spark"
 		   xmlns:mx="library://ns.adobe.com/flex/mx"
-		   width="400" height="300">
+		   xmlns:c="project.libsys.components.*"
+		   creationComplete="creationCompleteHandler(event)"
+		   width="100%" height="100%">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import project.libsys.beans.User;
+			import project.libsys.components.UserDetlDialog;
+			
+			[Bindable]
+			private var usersData : ArrayCollection;
+			
+			private var tmpUser : User;
+
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				userService.getUsers();
+			}
+			
+			private function getUsersResult(event : ResultEvent) : void
+			{
+				usersData = ArrayCollection(event.result);
+			}
+			
+			private function deleteUserResult(event : ResultEvent) : void
+			{
+				if(Boolean(event.result)) {
+					usersData.removeItemAt(userList.selectedIndex);
+				}
+			}
+			
+			private function addUserResult(event : ResultEvent) : void
+			{
+				var user : User = User(event.result);
+				usersData.addItem(user);
+			}
+			
+			private function editUserResult(event : ResultEvent) : void
+			{
+				if(Boolean(event.result)) {
+					userList.selectedItem.name = tmpUser.name;
+					userList.selectedItem.password = tmpUser.password;
+				}
+			}
+			
+			private function remoteMethodFault(event : FaultEvent) : void
+			{
+				Alert.show(event.fault.faultString);
+			}
+
+			protected function addUserButton_clickHandler(event:MouseEvent):void
+			{
+				var dlg : UserDetlDialog = new UserDetlDialog();
+				dlg.addEventListener(UserDetlDialog.USER_FINISHED, onUserFinished);
+				dlg.currentState = "add";
+				dlg.show(null, true);
+			}
+			
+			private function onUserFinished(event : Event) : void
+			{
+				var dlg : UserDetlDialog = UserDetlDialog(event.target);
+				var user : User = dlg.user;
+				if(user != null) {
+					if(dlg.currentState === "add") {
+						userService.addUser(user);
+					} else if(dlg.currentState === "edit") {
+						tmpUser = user;
+						userService.editUser(user);
+					}
+				}
+			}
+
+			protected function editUserButton_clickHandler(event:MouseEvent):void
+			{
+				var dlg : UserDetlDialog = new UserDetlDialog();
+				dlg.addEventListener(UserDetlDialog.USER_FINISHED, onUserFinished);
+				dlg.user = userList.selectedItem;
+				dlg.currentState = "edit";
+				dlg.show(null, true);
+			}
+
+			protected function deleteUserButton_clickHandler(event:MouseEvent):void
+			{
+				Alert.show(resourceManager.getString('app', 'module.user.removeConfirm'),
+					resourceManager.getString('app', 'module.user.remove.title'),
+					Alert.YES | Alert.NO, null, onDeleteConfirm, null, Alert.NO);
+			}
+			
+			private function onDeleteConfirm(event : CloseEvent) : void
+			{
+				if(event.detail == Alert.YES) {
+					userService.deleteUser(userList.selectedItem.id);
+				}
+			}
+
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:RemoteObject id="userService" destination="userService">
+			<s:channelSet>
+				<s:ChannelSet>
+					<s:AMFChannel uri="messagebroker/amf"/>
+				</s:ChannelSet>
+			</s:channelSet>
+			<s:method name="getUsers" result="getUsersResult(event)" fault="remoteMethodFault(event)"/>
+			<s:method name="deleteUser" result="deleteUserResult(event)" fault="remoteMethodFault(event)"/>
+			<s:method name="addUser" result="addUserResult(event)" fault="remoteMethodFault(event)"/>
+			<s:method name="editUser" result="editUserResult(event)" fault="remoteMethodFault(event)"/>
+		</s:RemoteObject>
+	</fx:Declarations>
+	
+	<c:ToolBar>
+		<c:IconButton id="addUserButton" label="{resourceManager.getString('app', 'module.user.add')}" icon="@Embed(source='/assets/add.png')"
+					  click="addUserButton_clickHandler(event)"/>
+		<c:IconButton id="deleteUserButton" label="{resourceManager.getString('app', 'module.user.remove')}" icon="@Embed(source='/assets/del.png')"
+					  enabled="{userList.selectedIndex >= 0}"
+					  click="deleteUserButton_clickHandler(event)"/>
+		<c:IconButton id="editUserButton" label="{resourceManager.getString('app', 'module.user.edit')}" icon="@Embed(source='/assets/edit.png')"
+					  enabled="{userList.selectedIndex >= 0}"
+					  click="editUserButton_clickHandler(event)"/>
+	</c:ToolBar>
+	<s:Label text="{resourceManager.getString('app', 'module.user.name')}"/>
+	
+	<s:List id="userList" dataProvider="{usersData}" labelField="name"
+		    width="100%" height="100%"/>
+	
 </mx:Module>
