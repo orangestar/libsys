@@ -1,7 +1,6 @@
 package project.libsys.service.impl;
 
 import java.util.Date;
-import java.util.List;
 
 import project.libsys.bean.Book;
 import project.libsys.bean.Lend;
@@ -36,31 +35,27 @@ public class LendServiceImpl implements LendService {
 		lend.setLendDate(new Date());
 		return lendDao.addLend(lend) ? lend : null;
 	}
-
-	@Override
-	public boolean deleteLend(int lendId) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean editLend(Lend lend) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public Lend getLend() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<Lend> getLends() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
+	@Override
+	public Lend returnBook(Lend lend) {
+		Book book = bookDao.getBook(lend.getBook().getTitle());
+		if(book != null) {
+			lend.setBook(book);
+		} else {
+			return null;
+		}
+		Reader reader = readerDao.getReader(lend.getReader().getName());
+		if(reader != null) {
+			lend.setReader(reader);
+		} else {
+			return null;
+		}
+		lend.setId(lendDao.getLendId(lend));
+		lend.setReturnDate(new Date());
+		lendDao.returnBook(lend);
+		return lend;
+	}
+
 	public LendDao getLendDao() {
 		return lendDao;
 	}
